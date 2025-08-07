@@ -1,4 +1,4 @@
-# Kings Cross Hack Club
+# Kings Cross Hack Lab
 
 - A place for builders, creators and inventors
 - Build the future you want to live in
