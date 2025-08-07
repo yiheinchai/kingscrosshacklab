@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Convert SVG to PNG</title>
+        <style>
+            body {
+                font-family: monospace;
+                background: #000;
+                color: #00ff88;
+                padding: 20px;
+            }
+            .converter {
+                margin: 20px 0;
+                padding: 20px;
+                border: 1px solid #21262d;
+            }
+            canvas {
+                border: 1px solid #00ff88;
+                margin: 10px 0;
+            }
+            button {
+                background: #00ff88;
+                color: #000;
+                padding: 10px 20px;
+                border: none;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            button:hover {
+                background: #00cc6a;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>KCHL Asset Generator</h1>
+
+        <div class="converter">
+            <h2>Favicon (32x32)</h2>
+            <canvas id="favicon32" width="32" height="32"></canvas>
+            <button onclick="downloadCanvas('favicon32', 'favicon-32x32.png')">
+                Download favicon-32x32.png
+            </button>
+        </div>
+
+        <div class="converter">
+            <h2>Favicon (16x16)</h2>
+            <canvas id="favicon16" width="16" height="16"></canvas>
+            <button onclick="downloadCanvas('favicon16', 'favicon-16x16.png')">
+                Download favicon-16x16.png
+            </button>
+        </div>
+
+        <div class="converter">
+            <h2>Apple Touch Icon (180x180)</h2>
+            <canvas id="apple180" width="180" height="180"></canvas>
+            <button
+                onclick="downloadCanvas('apple180', 'apple-touch-icon.png')"
+            >
+                Download apple-touch-icon.png
+            </button>
+        </div>
+
+        <div class="converter">
+            <h2>Open Graph Image (1200x630)</h2>
+            <canvas id="ogImage" width="1200" height="630"></canvas>
+            <button onclick="downloadCanvas('ogImage', 'og-image.png')">
+                Download og-image.png
+            </button>
+        </div>
+
+        <script>
+            function drawFavicon(canvasId, size) {
+                const canvas = document.getElementById(canvasId);
+                const ctx = canvas.getContext("2d");
+
+                // Black background
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, size, size);
+
+                // Gradient text
+                const gradient = ctx.createLinearGradient(0, 0, size, size);
+                gradient.addColorStop(0, "#00ff88");
+                gradient.addColorStop(0.5, "#00cc6a");
+                gradient.addColorStop(1, "#009955");
+
+                ctx.fillStyle = gradient;
+                ctx.font = `bold ${Math.floor(size * 0.35)}px monospace`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("KCHL", size / 2, size / 2);
+            }
+
+            function drawOGImage() {
+                const canvas = document.getElementById("ogImage");
+                const ctx = canvas.getContext("2d");
+
+                // Black background
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, 1200, 630);
+
+                // Grid pattern (simplified)
+                ctx.strokeStyle = "rgba(33, 38, 45, 0.3)";
+                ctx.lineWidth = 1;
+                for (let x = 0; x < 1200; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, 630);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < 630; y += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(1200, y);
+                    ctx.stroke();
+                }
+
+                // Title gradient
+                const titleGradient = ctx.createLinearGradient(0, 0, 1200, 630);
+                titleGradient.addColorStop(0, "#00ff88");
+                titleGradient.addColorStop(0.5, "#00cc6a");
+                titleGradient.addColorStop(1, "#009955");
+
+                // Main title
+                ctx.fillStyle = titleGradient;
+                ctx.font = "bold 72px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KINGS CROSS", 600, 250);
+                ctx.fillText("HACK LAB", 600, 330);
+
+                // Tagline
+                ctx.fillStyle = "#a1a1aa";
+                ctx.font = "32px sans-serif";
+                ctx.fillText("Ship or Get Shipped", 600, 420);
+
+                ctx.fillStyle = "#71717a";
+                ctx.font = "24px sans-serif";
+                ctx.fillText(
+                    "Every Wednesday • Live Building • Mutual Accountability",
+                    600,
+                    470
+                );
+
+                // Bottom accent bar
+                const barGradient = ctx.createLinearGradient(100, 0, 1100, 0);
+                barGradient.addColorStop(0, "#00ff88");
+                barGradient.addColorStop(0.5, "#ff0062");
+                barGradient.addColorStop(1, "#00d4ff");
+
+                ctx.fillStyle = barGradient;
+                ctx.globalAlpha = 0.8;
+                ctx.fillRect(100, 520, 1000, 4);
+                ctx.globalAlpha = 1;
+
+                // Particles
+                const particles = [
+                    { x: 150, y: 150, r: 4, color: "#00ff88" },
+                    { x: 1050, y: 180, r: 6, color: "#ff0062" },
+                    { x: 200, y: 480, r: 3, color: "#00d4ff" },
+                    { x: 950, y: 450, r: 5, color: "#8b5cf6" },
+                ];
+
+                particles.forEach((p) => {
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = 0.6;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                });
+            }
+
+            function downloadCanvas(canvasId, filename) {
+                const canvas = document.getElementById(canvasId);
+                const link = document.createElement("a");
+                link.download = filename;
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+
+            // Initialize canvases
+            window.onload = function () {
+                drawFavicon("favicon32", 32);
+                drawFavicon("favicon16", 16);
+                drawFavicon("apple180", 180);
+                drawOGImage();
+            };
+        </script>
+    </body>
+</html>
