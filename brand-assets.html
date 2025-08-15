@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>KCHL Brand Assets Generator</title>
+        <style>
+            body {
+                font-family: "JetBrains Mono", monospace;
+                background: #000;
+                color: #00ff88;
+                padding: 20px;
+                line-height: 1.6;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            .asset-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 30px;
+                margin: 30px 0;
+            }
+            .asset-card {
+                background: #0d1b2a;
+                border: 1px solid #21262d;
+                border-radius: 16px;
+                padding: 20px;
+                text-align: center;
+            }
+            .asset-title {
+                color: #00ff88;
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .asset-size {
+                color: #a1a1aa;
+                font-size: 0.9rem;
+                margin-bottom: 15px;
+            }
+            canvas {
+                border: 2px solid #00ff88;
+                margin: 10px 0;
+                max-width: 100%;
+                height: auto;
+            }
+            button {
+                background: linear-gradient(135deg, #00ff88, #00cc6a, #009955);
+                color: #000;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-family: "JetBrains Mono", monospace;
+                transition: all 0.3s;
+            }
+            button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 255, 136, 0.3);
+            }
+            h1 {
+                text-align: center;
+                color: #00ff88;
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+                background: linear-gradient(135deg, #00ff88, #00cc6a, #009955);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .subtitle {
+                text-align: center;
+                color: #a1a1aa;
+                margin-bottom: 40px;
+            }
+            .preview-small {
+                transform: scale(0.3);
+                transform-origin: top left;
+            }
+            .preview-container {
+                overflow: hidden;
+                height: 150px;
+                position: relative;
+                border: 1px solid #21262d;
+                border-radius: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>KCHL BRAND ASSETS</h1>
+            <p class="subtitle">Ship or Get Shipped • Every Wednesday</p>
+
+            <div class="asset-grid">
+                <!-- Instagram Post Square -->
+                <div class="asset-card">
+                    <div class="asset-title">Instagram Post - Logo</div>
+                    <div class="asset-size">1080 x 1080px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="igPost"
+                            width="1080"
+                            height="1080"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('igPost', 'kchl-instagram-post-logo.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Instagram Post Content -->
+                <div class="asset-card">
+                    <div class="asset-title">Instagram Post - Content</div>
+                    <div class="asset-size">1080 x 1080px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="igPostContent"
+                            width="1080"
+                            height="1080"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('igPostContent', 'kchl-instagram-post-content.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Instagram Story -->
+                <div class="asset-card">
+                    <div class="asset-title">Instagram Story - Logo</div>
+                    <div class="asset-size">1080 x 1920px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="igStory"
+                            width="1080"
+                            height="1920"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('igStory', 'kchl-instagram-story-logo.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Instagram Story Content -->
+                <div class="asset-card">
+                    <div class="asset-title">Instagram Story - Content</div>
+                    <div class="asset-size">1080 x 1920px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="igStoryContent"
+                            width="1080"
+                            height="1920"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('igStoryContent', 'kchl-instagram-story-content.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Poster A4 - Logo -->
+                <div class="asset-card">
+                    <div class="asset-title">Poster (A4) - Logo</div>
+                    <div class="asset-size">2480 x 3508px (300 DPI)</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="posterA4"
+                            width="1240"
+                            height="1754"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('posterA4', 'kchl-poster-a4-logo.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Poster A4 - Content -->
+                <div class="asset-card">
+                    <div class="asset-title">Poster (A4) - Content</div>
+                    <div class="asset-size">2480 x 3508px (300 DPI)</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="posterA4Content"
+                            width="1240"
+                            height="1754"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('posterA4Content', 'kchl-poster-a4-content.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Business Card -->
+                <div class="asset-card">
+                    <div class="asset-title">Business Card</div>
+                    <div class="asset-size">1050 x 600px (300 DPI)</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="businessCard"
+                            width="1050"
+                            height="600"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('businessCard', 'kchl-business-card.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- LinkedIn Banner -->
+                <div class="asset-card">
+                    <div class="asset-title">LinkedIn Banner</div>
+                    <div class="asset-size">1584 x 396px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="linkedinBanner"
+                            width="1584"
+                            height="396"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('linkedinBanner', 'kchl-linkedin-banner.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Sticker -->
+                <div class="asset-card">
+                    <div class="asset-title">Circular Sticker</div>
+                    <div class="asset-size">800 x 800px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="sticker"
+                            width="800"
+                            height="800"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('sticker', 'kchl-sticker.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Twitter Header -->
+                <div class="asset-card">
+                    <div class="asset-title">Twitter/X Header</div>
+                    <div class="asset-size">1500 x 500px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="twitterHeader"
+                            width="1500"
+                            height="500"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('twitterHeader', 'kchl-twitter-header.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Zoom Background -->
+                <div class="asset-card">
+                    <div class="asset-title">Zoom Background</div>
+                    <div class="asset-size">1920 x 1080px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="zoomBg"
+                            width="1920"
+                            height="1080"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('zoomBg', 'kchl-zoom-background.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Presentation Slide - Title -->
+                <div class="asset-card">
+                    <div class="asset-title">Presentation - Title Slide</div>
+                    <div class="asset-size">1920 x 1080px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="presentation"
+                            width="1920"
+                            height="1080"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('presentation', 'kchl-presentation-title.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+
+                <!-- Presentation Slide - Content -->
+                <div class="asset-card">
+                    <div class="asset-title">Presentation - Content Slide</div>
+                    <div class="asset-size">1920 x 1080px</div>
+                    <div class="preview-container">
+                        <canvas
+                            id="presentationContent"
+                            width="1920"
+                            height="1080"
+                            class="preview-small"
+                        ></canvas>
+                    </div>
+                    <button
+                        onclick="downloadCanvas('presentationContent', 'kchl-presentation-content.png')"
+                    >
+                        Download
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Brand colors
+            const brand = {
+                black: "#000000",
+                darkBlue: "#0d1b2a",
+                gray: "#161b22",
+                accent: "#00ff88",
+                accentDim: "#00cc6a",
+                accentRed: "#ff0062",
+                accentBlue: "#00d4ff",
+                accentPurple: "#8b5cf6",
+                textPrimary: "#ffffff",
+                textSecondary: "#a1a1aa",
+                textMuted: "#71717a",
+                border: "#21262d",
+            };
+
+            // Utility functions
+            function drawGrid(ctx, width, height, size = 40) {
+                ctx.strokeStyle = "rgba(33, 38, 45, 0.3)";
+                ctx.lineWidth = 1;
+                for (let x = 0; x < width; x += size) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < height; y += size) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                    ctx.stroke();
+                }
+            }
+
+            function createGradient(ctx, x1, y1, x2, y2) {
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, brand.accent);
+                gradient.addColorStop(0.5, brand.accentDim);
+                gradient.addColorStop(1, "#009955");
+                return gradient;
+            }
+
+            function createMatrixGradient(ctx, x1, y1, x2, y2) {
+                const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+                gradient.addColorStop(0, brand.accent);
+                gradient.addColorStop(0.5, brand.accentRed);
+                gradient.addColorStop(1, brand.accentBlue);
+                return gradient;
+            }
+
+            function drawParticles(ctx, width, height, count = 6) {
+                const particles = [
+                    { color: brand.accent, opacity: 0.6 },
+                    { color: brand.accentRed, opacity: 0.6 },
+                    { color: brand.accentBlue, opacity: 0.6 },
+                    { color: brand.accentPurple, opacity: 0.6 },
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const particle = particles[i % particles.length];
+                    ctx.fillStyle = particle.color;
+                    ctx.globalAlpha = particle.opacity;
+                    ctx.beginPath();
+                    ctx.arc(
+                        Math.random() * width,
+                        Math.random() * height,
+                        Math.random() * 8 + 2,
+                        0,
+                        2 * Math.PI
+                    );
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            function drawTerminalWindow(ctx, x, y, width, height) {
+                // Terminal window background
+                ctx.fillStyle = "rgba(13, 27, 42, 0.9)";
+                ctx.fillRect(x, y, width, height);
+
+                // Terminal window border
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, width, height);
+
+                // Terminal title bar
+                ctx.fillStyle = brand.darkBlue;
+                ctx.fillRect(x, y, width, 40);
+
+                // Terminal title bar border
+                ctx.strokeStyle = brand.border;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, y + 40);
+                ctx.lineTo(x + width, y + 40);
+                ctx.stroke();
+
+                // Terminal buttons (close, minimize, maximize)
+                const buttonY = y + 12;
+                const buttonSize = 16;
+                const buttonSpacing = 25;
+
+                // Close button (red)
+                ctx.fillStyle = brand.accentRed;
+                ctx.beginPath();
+                ctx.arc(x + 15, buttonY, buttonSize / 2, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Minimize button (yellow/orange)
+                ctx.fillStyle = "#ffbd2e";
+                ctx.beginPath();
+                ctx.arc(
+                    x + 15 + buttonSpacing,
+                    buttonY,
+                    buttonSize / 2,
+                    0,
+                    2 * Math.PI
+                );
+                ctx.fill();
+
+                // Maximize button (green)
+                ctx.fillStyle = brand.accent;
+                ctx.beginPath();
+                ctx.arc(
+                    x + 15 + buttonSpacing * 2,
+                    buttonY,
+                    buttonSize / 2,
+                    0,
+                    2 * Math.PI
+                );
+                ctx.fill();
+
+                // Terminal title
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "14px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("hacklab@live", x + width / 2, y + 25);
+            }
+
+            // Instagram Post (1080x1080)
+            function drawInstagramPost() {
+                const canvas = document.getElementById("igPost");
+                const ctx = canvas.getContext("2d");
+                const size = 1080;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, size, size);
+
+                // Grid
+                drawGrid(ctx, size, size, 60);
+
+                // Main logo with better typography
+                ctx.fillStyle = createGradient(ctx, 0, 0, size, size);
+                ctx.font = "bold 100px monospace";
+                ctx.textAlign = "center";
+                ctx.letterSpacing = "2px";
+
+                // Add text stroke for better visibility
+                ctx.strokeStyle = brand.black;
+                ctx.lineWidth = 4;
+                ctx.strokeText("KINGS CROSS", size / 2, size / 2 - 60);
+                ctx.fillText("KINGS CROSS", size / 2, size / 2 - 60);
+
+                ctx.strokeText("HACK LAB", size / 2, size / 2 + 40);
+                ctx.fillText("HACK LAB", size / 2, size / 2 + 40);
+
+                // Enhanced tagline with better hierarchy
+                ctx.strokeStyle = "transparent";
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 42px sans-serif";
+                ctx.fillText("Ship or Get Shipped", size / 2, size / 2 + 140);
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "32px monospace";
+                ctx.fillText("Every Wednesday • 6PM", size / 2, size / 2 + 200);
+
+                // Bottom accent with more prominence
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, size, 0);
+                ctx.fillRect(80, size - 100, size - 160, 12);
+
+                // Particles
+                drawParticles(ctx, size, size, 8);
+            }
+
+            // Instagram Post Content Variant
+            function drawInstagramPostContent() {
+                const canvas = document.getElementById("igPostContent");
+                const ctx = canvas.getContext("2d");
+                const size = 1080;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, size, size);
+
+                // Grid
+                drawGrid(ctx, size, size, 60, 0.2);
+
+                // Top logo smaller
+                ctx.fillStyle = createGradient(ctx, 0, 0, size, 0);
+                ctx.font = "bold 48px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KCHL", size / 2, 120);
+
+                // Content frame
+                const frameX = 80,
+                    frameY = 180,
+                    frameWidth = size - 160,
+                    frameHeight = size - 360;
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(frameX, frameY, frameWidth, frameHeight);
+
+                // Content area background
+                ctx.fillStyle = "rgba(13, 27, 42, 0.3)";
+                ctx.fillRect(frameX, frameY, frameWidth, frameHeight);
+
+                // Sample content
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 52px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("YOUR CONTENT", size / 2, frameY + 150);
+                ctx.fillText("GOES HERE", size / 2, frameY + 220);
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "28px sans-serif";
+                ctx.fillText(
+                    "Announcements • Updates • Progress",
+                    size / 2,
+                    frameY + 300
+                );
+                ctx.fillText(
+                    "Event details • Team highlights",
+                    size / 2,
+                    frameY + 340
+                );
+
+                // Bottom branding
+                ctx.fillStyle = brand.accent;
+                ctx.font = "24px monospace";
+                ctx.fillText(
+                    "Every Wednesday • Ship or Get Shipped",
+                    size / 2,
+                    size - 80
+                );
+
+                drawParticles(ctx, size, size, 4);
+            }
+
+            // Instagram Story (1080x1920)
+            function drawInstagramStory() {
+                const canvas = document.getElementById("igStory");
+                const ctx = canvas.getContext("2d");
+                const width = 1080,
+                    height = 1920;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 60);
+
+                // Top logo with better spacing
+                ctx.fillStyle = createGradient(ctx, 0, 0, width, 0);
+                ctx.font = "bold 64px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KCHL", width / 2, 150);
+
+                // Main content with improved hierarchy
+                ctx.fillStyle = createGradient(ctx, 0, 0, width, height);
+                ctx.font = "bold 80px monospace";
+                ctx.letterSpacing = "1px";
+
+                // Add text stroke
+                ctx.strokeStyle = brand.black;
+                ctx.lineWidth = 3;
+                ctx.strokeText("KINGS CROSS", width / 2, height / 2 - 80);
+                ctx.fillText("KINGS CROSS", width / 2, height / 2 - 80);
+                ctx.strokeText("HACK LAB", width / 2, height / 2 + 20);
+                ctx.fillText("HACK LAB", width / 2, height / 2 + 20);
+
+                // Call to action with better visual weight
+                ctx.strokeStyle = "transparent";
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 44px sans-serif";
+                ctx.fillText("JOIN THE LAB", width / 2, height / 2 + 160);
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 32px monospace";
+                ctx.fillText(
+                    "Every Wednesday 6PM",
+                    width / 2,
+                    height / 2 + 220
+                );
+
+                // Enhanced terminal-style box
+                const terminalX = 60,
+                    terminalY = height - 450;
+                const terminalW = width - 120,
+                    terminalH = 300;
+
+                drawTerminalWindow(
+                    ctx,
+                    terminalX,
+                    terminalY,
+                    terminalW,
+                    terminalH
+                );
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "28px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText(
+                    "hacklab@live:~$ ./join.sh",
+                    terminalX + 30,
+                    terminalY + 100
+                );
+                ctx.fillText(
+                    "> Starting session...",
+                    terminalX + 30,
+                    terminalY + 140
+                );
+                ctx.fillText(
+                    "> 47 builders online",
+                    terminalX + 30,
+                    terminalY + 180
+                );
+                ctx.fillText(
+                    "> Status: SHIPPING █",
+                    terminalX + 30,
+                    terminalY + 220
+                );
+
+                drawParticles(ctx, width, height, 8);
+            }
+
+            // Instagram Story Content Variant
+            function drawInstagramStoryContent() {
+                const canvas = document.getElementById("igStoryContent");
+                const ctx = canvas.getContext("2d");
+                const width = 1080,
+                    height = 1920;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 60, 0.15);
+
+                // Header
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 36px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KCHL", width / 2, 100);
+
+                // Top accent line
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, 140, width, 6);
+
+                // Main content area
+                const contentY = 200;
+                const contentHeight = height - 500;
+
+                // Content frame
+                ctx.strokeStyle = "rgba(0, 255, 136, 0.3)";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(80, contentY, width - 160, contentHeight);
+
+                ctx.fillStyle = "rgba(13, 27, 42, 0.2)";
+                ctx.fillRect(80, contentY, width - 160, contentHeight);
+
+                // Sample content structure
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 48px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("YOUR STORY", width / 2, contentY + 100);
+                ctx.fillText("CONTENT HERE", width / 2, contentY + 160);
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "24px sans-serif";
+                ctx.fillText(
+                    "Updates • Behind the scenes",
+                    width / 2,
+                    contentY + 240
+                );
+                ctx.fillText(
+                    "Progress reports • Announcements",
+                    width / 2,
+                    contentY + 280
+                );
+                ctx.fillText(
+                    "Team highlights • Event details",
+                    width / 2,
+                    contentY + 320
+                );
+
+                // Bottom branding
+                const footerY = height - 250;
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 28px monospace";
+                ctx.fillText("Ship or Get Shipped", width / 2, footerY);
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "24px sans-serif";
+                ctx.fillText("Every Wednesday • 6PM", width / 2, footerY + 40);
+
+                drawParticles(ctx, width, height, 6);
+            }
+
+            // Poster A4 (2480x3508 at 300 DPI, scaled down)
+            function drawPosterA4() {
+                const canvas = document.getElementById("posterA4");
+                const ctx = canvas.getContext("2d");
+                const width = 1240,
+                    height = 1754; // Half size for preview
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 50);
+
+                // Header with improved typography
+                ctx.fillStyle = createGradient(ctx, 0, 0, width, 0);
+                ctx.font = "bold 100px monospace";
+                ctx.textAlign = "center";
+                ctx.letterSpacing = "2px";
+
+                // Add text stroke for impact
+                ctx.strokeStyle = brand.black;
+                ctx.lineWidth = 4;
+                ctx.strokeText("KINGS CROSS", width / 2, 160);
+                ctx.fillText("KINGS CROSS", width / 2, 160);
+                ctx.strokeText("HACK LAB", width / 2, 280);
+                ctx.fillText("HACK LAB", width / 2, 280);
+
+                // Main message with better hierarchy
+                ctx.strokeStyle = "transparent";
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 64px sans-serif";
+                ctx.fillText("SHIP OR GET SHIPPED", width / 2, 420);
+
+                // Details with improved spacing
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 42px monospace";
+                ctx.fillText("EVERY WEDNESDAY • 6PM", width / 2, 520);
+
+                // Body text with better readability
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "28px sans-serif";
+                ctx.textAlign = "center";
+                const lines = [
+                    "Live-building sessions for founders,",
+                    "developers, designers, marketers,",
+                    "and product people.",
+                    "",
+                    "Join a team, start your own,",
+                    "or intern with experienced builders.",
+                    "",
+                    "Publicly tracked. Mutually accountable.",
+                    "All roles welcome.",
+                ];
+
+                let lineY = 620;
+                lines.forEach((line, i) => {
+                    if (line) ctx.fillText(line, width / 2, lineY);
+                    lineY += line ? 42 : 21;
+                });
+
+                // Enhanced QR code area
+                const qrSize = 240;
+                const qrX = width / 2 - qrSize / 2;
+                const qrY = height - 320;
+
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 6;
+                ctx.strokeRect(qrX, qrY, qrSize, qrSize);
+
+                // QR code grid pattern
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
+                        if ((i + j) % 2 === 0) {
+                            ctx.fillStyle = brand.accent;
+                            ctx.fillRect(qrX + i * 30, qrY + j * 30, 30, 30);
+                        }
+                    }
+                }
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 20px monospace";
+                ctx.fillText("SCAN TO JOIN", width / 2, qrY + qrSize + 40);
+
+                // Bottom accent
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, height - 15, width, 15);
+
+                drawParticles(ctx, width, height, 12);
+            }
+
+            // Poster A4 Content Variant
+            function drawPosterA4Content() {
+                const canvas = document.getElementById("posterA4Content");
+                const ctx = canvas.getContext("2d");
+                const width = 1240,
+                    height = 1754;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Subtle grid
+                drawGrid(ctx, width, height, 50, 0.15);
+
+                // Header
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 48px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KINGS CROSS HACK LAB", width / 2, 80);
+
+                // Top accent
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, 120, width, 8);
+
+                // Main content area
+                const contentArea = {
+                    x: 80,
+                    y: 180,
+                    width: width - 160,
+                    height: height - 400,
+                };
+
+                // Content frame
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(
+                    contentArea.x,
+                    contentArea.y,
+                    contentArea.width,
+                    contentArea.height
+                );
+
+                ctx.fillStyle = "rgba(13, 27, 42, 0.1)";
+                ctx.fillRect(
+                    contentArea.x,
+                    contentArea.y,
+                    contentArea.width,
+                    contentArea.height
+                );
+
+                // Content structure
+                const contentX = contentArea.x + 40;
+                const contentY = contentArea.y + 60;
+
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 56px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("YOUR EVENT", width / 2, contentY + 80);
+                ctx.fillText("CONTENT HERE", width / 2, contentY + 150);
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "32px sans-serif";
+                ctx.fillText(
+                    "Event details • Speaker information",
+                    width / 2,
+                    contentY + 240
+                );
+                ctx.fillText(
+                    "Agenda • Location • Registration",
+                    width / 2,
+                    contentY + 290
+                );
+
+                // Feature highlights
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 28px monospace";
+                ctx.textAlign = "left";
+                const features = [
+                    "• Live coding sessions",
+                    "• Networking opportunities",
+                    "• Pitch competitions",
+                    "• Mentorship programs",
+                ];
+
+                features.forEach((feature, i) => {
+                    ctx.fillText(feature, contentX, contentY + 380 + i * 50);
+                });
+
+                // Bottom branding
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 24px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    "Ship or Get Shipped • Every Wednesday",
+                    width / 2,
+                    height - 80
+                );
+
+                drawParticles(ctx, width, height, 6);
+            }
+
+            // Business Card (1050x600)
+            function drawBusinessCard() {
+                const canvas = document.getElementById("businessCard");
+                const ctx = canvas.getContext("2d");
+                const width = 1050,
+                    height = 600;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 30);
+
+                // Logo
+                ctx.fillStyle = createGradient(
+                    ctx,
+                    0,
+                    0,
+                    width / 2,
+                    height / 2
+                );
+                ctx.font = "bold 48px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("KCHL", 50, 100);
+
+                // Title
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 32px monospace";
+                ctx.fillText("KINGS CROSS HACK LAB", 50, 180);
+
+                // Tagline
+                ctx.fillStyle = brand.accent;
+                ctx.font = "24px sans-serif";
+                ctx.fillText("Ship or Get Shipped", 50, 220);
+
+                // Details
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "20px monospace";
+                ctx.fillText("Every Wednesday • 6PM", 50, 280);
+                ctx.fillText("kxhacklab.com", 50, 320);
+
+                // Right side terminal
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(
+                    width / 2 + 50,
+                    50,
+                    width / 2 - 100,
+                    height - 100
+                );
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "16px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("hacklab@live:~$", width / 2 + 80, 120);
+                ctx.fillText("./join.sh", width / 2 + 80, 160);
+                ctx.fillText("> Status: SHIPPING", width / 2 + 80, 200);
+                ctx.fillText("> 47 builders online", width / 2 + 80, 240);
+
+                // Accent line
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, height - 10, width, 10);
+            }
+
+            // LinkedIn Banner (1584x396)
+            function drawLinkedInBanner() {
+                const canvas = document.getElementById("linkedinBanner");
+                const ctx = canvas.getContext("2d");
+                const width = 1584,
+                    height = 396;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 30);
+
+                // Logo
+                ctx.fillStyle = createGradient(ctx, 0, 0, 400, height);
+                ctx.font = "bold 72px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("KINGS CROSS HACK LAB", 50, 150);
+
+                // Tagline
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "32px sans-serif";
+                ctx.fillText(
+                    "Ship or Get Shipped • Monday 2pm • Live Building",
+                    50,
+                    220
+                );
+
+                // Terminal on right
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(width - 400, 50, 350, height - 100);
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "20px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("hacklab@live:~$ npm run ship", width - 380, 120);
+                ctx.fillText("> Building the future...", width - 380, 160);
+                ctx.fillText("> Status: SHIPPING █", width - 380, 200);
+
+                // Bottom accent
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, height - 20, width, 20);
+
+                drawParticles(ctx, width, height, 4);
+            }
+
+            // Circular Sticker (800x800)
+            function drawSticker() {
+                const canvas = document.getElementById("sticker");
+                const ctx = canvas.getContext("2d");
+                const size = 800;
+                const center = size / 2;
+                const radius = center - 20;
+
+                // Background circle
+                ctx.fillStyle = brand.black;
+                ctx.beginPath();
+                ctx.arc(center, center, radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Border
+                ctx.strokeStyle = createMatrixGradient(ctx, 0, 0, size, 0);
+                ctx.lineWidth = 20;
+                ctx.stroke();
+
+                // Inner grid (circular)
+                ctx.strokeStyle = "rgba(33, 38, 45, 0.5)";
+                ctx.lineWidth = 2;
+                for (let r = 50; r < radius; r += 40) {
+                    ctx.beginPath();
+                    ctx.arc(center, center, r, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+
+                // Logo
+                ctx.fillStyle = createGradient(
+                    ctx,
+                    center - 200,
+                    center - 100,
+                    center + 200,
+                    center + 100
+                );
+                ctx.font = "bold 120px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("KCHL", center, center - 20);
+
+                // Bottom text
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "36px sans-serif";
+                ctx.fillText("SHIP OR GET SHIPPED", center, center + 80);
+
+                // Particles in circle
+                const particleCount = 8;
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (i / particleCount) * 2 * Math.PI;
+                    const distance = radius - 100;
+                    const x = center + Math.cos(angle) * distance;
+                    const y = center + Math.sin(angle) * distance;
+
+                    ctx.fillStyle =
+                        i % 2 === 0 ? brand.accent : brand.accentRed;
+                    ctx.globalAlpha = 0.7;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            // Twitter Header (1500x500)
+            function drawTwitterHeader() {
+                const canvas = document.getElementById("twitterHeader");
+                const ctx = canvas.getContext("2d");
+                const width = 1500,
+                    height = 500;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 40);
+
+                // Logo
+                ctx.fillStyle = createGradient(ctx, 0, 0, 600, height);
+                ctx.font = "bold 64px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("KINGS CROSS HACK LAB", 50, 150);
+
+                // Terminal
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(50, 200, 700, 200);
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "24px monospace";
+                ctx.fillText(
+                    "hacklab@live:~$ ./ship-or-get-shipped.sh",
+                    80,
+                    250
+                );
+                ctx.fillStyle = brand.textSecondary;
+                ctx.fillText("> Every Wednesday 6PM", 80, 290);
+                ctx.fillText(
+                    "> Live building • Public accountability",
+                    80,
+                    330
+                );
+                ctx.fillText("> Status: SHIPPING █", 80, 370);
+
+                // Right side particles and accent
+                drawParticles(ctx, width, height, 6);
+
+                // Top accent
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, 0, width, 10);
+
+                // Bottom accent
+                ctx.fillRect(0, height - 10, width, 10);
+            }
+
+            // Zoom Background (1920x1080)
+            function drawZoomBackground() {
+                const canvas = document.getElementById("zoomBg");
+                const ctx = canvas.getContext("2d");
+                const width = 1920,
+                    height = 1080;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Large grid
+                drawGrid(ctx, width, height, 60);
+
+                // Centered logo
+                ctx.fillStyle = createGradient(
+                    ctx,
+                    width / 2 - 400,
+                    height / 2 - 200,
+                    width / 2 + 400,
+                    height / 2 + 200
+                );
+                ctx.font = "bold 120px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    "KINGS CROSS HACK LAB",
+                    width / 2,
+                    height / 2 - 50
+                );
+
+                // Subtitle
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "48px sans-serif";
+                ctx.fillText(
+                    "Ship or Get Shipped • Every Wednesday",
+                    width / 2,
+                    height / 2 + 50
+                );
+
+                // Corner accents
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, 200, 0);
+                ctx.fillRect(0, 0, 200, 20);
+                ctx.fillRect(width - 200, 0, 200, 20);
+                ctx.fillRect(0, height - 20, 200, 20);
+                ctx.fillRect(width - 200, height - 20, 200, 20);
+
+                drawParticles(ctx, width, height, 12);
+            }
+
+            // Presentation Slide (1920x1080)
+            function drawPresentationSlide() {
+                const canvas = document.getElementById("presentation");
+                const ctx = canvas.getContext("2d");
+                const width = 1920,
+                    height = 1080;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Grid
+                drawGrid(ctx, width, height, 50);
+
+                // Header with improved typography
+                ctx.fillStyle = createGradient(ctx, 0, 0, width, 0);
+                ctx.font = "bold 80px monospace";
+                ctx.textAlign = "center";
+                ctx.letterSpacing = "2px";
+
+                // Add text stroke
+                ctx.strokeStyle = brand.black;
+                ctx.lineWidth = 4;
+                ctx.strokeText("KINGS CROSS HACK LAB", width / 2, 150);
+                ctx.fillText("KINGS CROSS HACK LAB", width / 2, 150);
+
+                // Subtitle
+                ctx.strokeStyle = "transparent";
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 48px sans-serif";
+                ctx.fillText("Ship or Get Shipped", width / 2, 220);
+
+                // Main content area
+                const contentX = 200;
+                const contentY = 320;
+
+                // Bullet points with improved typography
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 52px sans-serif";
+                ctx.textAlign = "left";
+
+                const points = [
+                    "• Live building sessions every Wednesday",
+                    "• Founders, developers, designers, marketers",
+                    "• Join a team or start your own project",
+                    "• Public accountability & progress tracking",
+                    "• Ship or get shipped!",
+                ];
+
+                points.forEach((point, i) => {
+                    ctx.fillText(point, contentX, contentY + i * 80);
+                });
+
+                // Enhanced terminal corner
+                const termX = width - 550;
+                const termY = height - 350;
+                const termW = 500;
+                const termH = 280;
+
+                drawTerminalWindow(ctx, termX, termY, termW, termH);
+
+                ctx.fillStyle = brand.accent;
+                ctx.font = "24px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("hacklab@live:~$", termX + 30, termY + 100);
+                ctx.fillText("npm run ship", termX + 30, termY + 130);
+                ctx.fillText(
+                    "> Building the future...",
+                    termX + 30,
+                    termY + 160
+                );
+                ctx.fillText("> Status: SHIPPING █", termX + 30, termY + 190);
+
+                // Bottom accent
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, height - 20, width, 20);
+
+                drawParticles(ctx, width, height, 8);
+            }
+
+            // Presentation Content Slide
+            function drawPresentationContent() {
+                const canvas = document.getElementById("presentationContent");
+                const ctx = canvas.getContext("2d");
+                const width = 1920,
+                    height = 1080;
+
+                // Background
+                ctx.fillStyle = brand.black;
+                ctx.fillRect(0, 0, width, height);
+
+                // Subtle grid
+                drawGrid(ctx, width, height, 50, 0.2);
+
+                // Header
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 48px monospace";
+                ctx.textAlign = "left";
+                ctx.fillText("KCHL", 80, 80);
+
+                // Top accent line
+                ctx.fillStyle = createMatrixGradient(ctx, 0, 0, width, 0);
+                ctx.fillRect(0, 120, width, 6);
+
+                // Main content area
+                const mainContent = {
+                    x: 80,
+                    y: 180,
+                    width: width - 600,
+                    height: height - 280,
+                };
+
+                // Content frame
+                ctx.strokeStyle = "rgba(0, 255, 136, 0.3)";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(
+                    mainContent.x,
+                    mainContent.y,
+                    mainContent.width,
+                    mainContent.height
+                );
+
+                ctx.fillStyle = "rgba(13, 27, 42, 0.15)";
+                ctx.fillRect(
+                    mainContent.x,
+                    mainContent.y,
+                    mainContent.width,
+                    mainContent.height
+                );
+
+                // Content structure
+                ctx.fillStyle = brand.textPrimary;
+                ctx.font = "bold 72px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    "YOUR CONTENT",
+                    mainContent.x + mainContent.width / 2,
+                    mainContent.y + 120
+                );
+                ctx.fillText(
+                    "GOES HERE",
+                    mainContent.x + mainContent.width / 2,
+                    mainContent.y + 210
+                );
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "36px sans-serif";
+                ctx.fillText(
+                    "Slides • Data • Charts • Images",
+                    mainContent.x + mainContent.width / 2,
+                    mainContent.y + 300
+                );
+                ctx.fillText(
+                    "Bullet points • Diagrams • Code snippets",
+                    mainContent.x + mainContent.width / 2,
+                    mainContent.y + 350
+                );
+
+                // Sidebar content
+                const sidebar = {
+                    x: width - 450,
+                    y: 180,
+                    width: 370,
+                    height: height - 280,
+                };
+
+                ctx.strokeStyle = brand.accent;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(
+                    sidebar.x,
+                    sidebar.y,
+                    sidebar.width,
+                    sidebar.height
+                );
+
+                ctx.fillStyle = "rgba(0, 255, 136, 0.05)";
+                ctx.fillRect(
+                    sidebar.x,
+                    sidebar.y,
+                    sidebar.width,
+                    sidebar.height
+                );
+
+                // Sidebar content
+                ctx.fillStyle = brand.accent;
+                ctx.font = "bold 28px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    "KEY POINTS",
+                    sidebar.x + sidebar.width / 2,
+                    sidebar.y + 50
+                );
+
+                ctx.fillStyle = brand.textSecondary;
+                ctx.font = "22px sans-serif";
+                ctx.textAlign = "left";
+                const sidebarPoints = [
+                    "• Every Wednesday",
+                    "• 6PM Start Time",
+                    "• All Roles Welcome",
+                    "• Live Building",
+                    "• Public Progress",
+                    "• Team Formation",
+                    "• Mentorship",
+                    "• Accountability",
+                ];
+
+                sidebarPoints.forEach((point, i) => {
+                    ctx.fillText(
+                        point,
+                        sidebar.x + 30,
+                        sidebar.y + 120 + i * 40
+                    );
+                });
+
+                // Bottom branding
+                ctx.fillStyle = brand.accent;
+                ctx.font = "24px monospace";
+                ctx.textAlign = "right";
+                ctx.fillText("Ship or Get Shipped", width - 80, height - 40);
+
+                drawParticles(ctx, width, height, 6);
+            }
+
+            // Download function
+            function downloadCanvas(canvasId, filename) {
+                const canvas = document.getElementById(canvasId);
+                const link = document.createElement("a");
+                link.download = filename;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            }
+
+            // Initialize all assets
+            window.onload = function () {
+                drawInstagramPost();
+                drawInstagramPostContent();
+                drawInstagramStory();
+                drawInstagramStoryContent();
+                drawPosterA4();
+                drawPosterA4Content();
+                drawBusinessCard();
+                drawLinkedInBanner();
+                drawSticker();
+                drawTwitterHeader();
+                drawZoomBackground();
+                drawPresentationSlide();
+                drawPresentationContent();
+            };
+        </script>
+    </body>
+</html>
