@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Debate Fact-Checker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .claim {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease-in-out;
+        }
+        .claim-true { background-color: rgba(16, 185, 129, 0.2); border-bottom: 2px solid rgba(16, 185, 129, 0.8); }
+        .claim-false { background-color: rgba(239, 68, 68, 0.2); border-bottom: 2px solid rgba(239, 68, 68, 0.8); }
+        .claim-nuanced { background-color: rgba(245, 158, 11, 0.2); border-bottom: 2px solid rgba(245, 158, 11, 0.8); }
+        .claim:hover { filter: brightness(1.2); }
+        .claim.selected {
+            filter: brightness(1.3);
+            transform: scale(1.01);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">Argument Analysis Engine</h1>
+            <p class="text-gray-400 mt-2">Enter a full argument below. The AI will identify, verify, and annotate the factual claims.</p>
+        </div>
+
+        <div class="flex flex-col gap-4">
+            <textarea id="userInput" class="w-full h-40 p-4 bg-gray-700 border-2 border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition resize-y" placeholder="e.g., 'The sky is blue because of Rayleigh scattering. Some people think it's blue because the ocean reflects onto it, but that's a common misconception. Isn't science fascinating?'"></textarea>
+            <button id="factCheckBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-800">
+                Analyze Argument
+            </button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultContainer" class="mt-8 hidden">
+             <div id="loader" class="flex flex-col justify-center items-center py-8 hidden">
+                <div class="loader"></div>
+                <p id="progressText" class="mt-4 text-gray-400">Starting analysis...</p>
+            </div>
+
+            <div id="annotatedResult" class="p-5 bg-gray-900/50 rounded-lg text-lg leading-relaxed whitespace-pre-wrap"></div>
+            
+            <div id="detailsContainer" class="mt-6 hidden">
+                 <h2 class="text-xl font-semibold mb-3 text-gray-200">Verification Details:</h2>
+                 <div class="p-5 bg-gray-700/50 rounded-lg">
+                    <p id="detailsText" class="text-gray-300 whitespace-pre-wrap"></p>
+                    <div id="detailsSources" class="mt-4">
+                         <h3 class="text-md font-semibold mb-2 text-gray-200">Sources:</h3>
+                         <ul id="detailsSourcesList" class="list-disc list-inside space-y-2 text-gray-400">
+                         </ul>
+                    </div>
+                 </div>
+            </div>
+
+            <div id="errorMessage" class="hidden mt-6 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-300">
+                <p id="errorText"></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const userInput = document.getElementById('userInput');
+        const factCheckBtn = document.getElementById('factCheckBtn');
+        const resultContainer = document.getElementById('resultContainer');
+        const loader = document.getElementById('loader');
+        const progressText = document.getElementById('progressText');
+        const annotatedResult = document.getElementById('annotatedResult');
+        const detailsContainer = document.getElementById('detailsContainer');
+        const detailsText = document.getElementById('detailsText');
+        const detailsSources = document.getElementById('detailsSources');
+        const detailsSourcesList = document.getElementById('detailsSourcesList');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        // --- API Configuration ---
+        const apiKey = ""; // Environment will provide this
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        // --- Event Listener ---
+        factCheckBtn.addEventListener('click', handleArgumentAnalysis);
+
+        /**
+         * Main function to orchestrate the multi-step analysis process.
+         */
+        async function handleArgumentAnalysis() {
+            const userArgument = userInput.value.trim();
+            if (!userArgument) {
+                showError("Please enter an argument to analyze.");
+                return;
+            }
+            
+            setupInitialUI();
+
+            try {
+                // Step 1: Deconstruct the Argument
+                updateProgress("Step 1: Breaking down the argument...");
+                const sentences = segmentSentences(userArgument);
+                
+                // Step 2 & 3: Identify and Verify Claims
+                const processedSentences = [];
+                for (let i = 0; i < sentences.length; i++) {
+                    const sentence = sentences[i];
+                    updateProgress(`Step 2: Analyzing sentence ${i + 1} of ${sentences.length}...`);
+                    
+                    const isClaim = await isSentenceAClaim(sentence);
+                    
+                    if (isClaim) {
+                        updateProgress(`Step 3: Verifying claim ${i + 1}...`);
+                        const verification = await verifyClaim(sentence);
+                        const classification = await classifyVerification(verification.text);
+                        processedSentences.push({ sentence, isClaim, verification, classification });
+                    } else {
+                        processedSentences.push({ sentence, isClaim });
+                    }
+                }
+                
+                // Step 4: Present the Results
+                updateProgress("Step 4: Compiling final report...");
+                renderAnnotatedArgument(processedSentences);
+
+            } catch (error) {
+                console.error("An error occurred during analysis:", error);
+                showError("An error occurred during analysis. Please check the console.");
+            } finally {
+                loader.classList.add('hidden');
+                factCheckBtn.disabled = false;
+                factCheckBtn.textContent = 'Analyze Argument';
+            }
+        }
+
+        // --- Core Logic Steps ---
+
+        /**
+         * [Step 1] Splits text into an array of sentences.
+         */
+        function segmentSentences(text) {
+            // A more robust regex that splits after punctuation while keeping it.
+            // It also filters out empty strings that might result from the split.
+            return text.split(/(?<=[.?!])\s+/).filter(s => s.length > 0);
+        }
+
+        /**
+         * [Step 2] Asks the AI to classify if a sentence is a factual claim.
+         */
+        async function isSentenceAClaim(sentence) {
+            const systemPrompt = "You are a text classification AI. Your task is to determine if a sentence is a verifiable factual claim. Respond with only the word 'Yes' or the word 'No'.";
+            const payload = {
+                contents: [{ parts: [{ text: sentence }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            const response = await makeApiCall(payload);
+            const text = response.candidates?.[0]?.content?.parts?.[0]?.text || 'No';
+            return text.toLowerCase().includes('yes');
+        }
+
+        /**
+         * [Step 3] Asks the AI to verify a claim using Google Search.
+         */
+        async function verifyClaim(claim) {
+            const systemPrompt = `You are a neutral, unbiased fact-checker. Use Google Search to verify the following claim. Provide a concise, neutral summary of your findings. State if the claim is true, false, or if the topic is nuanced/complex.`;
+            const payload = {
+                contents: [{ parts: [{ text: claim }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            const result = await makeApiCall(payload);
+            const candidate = result.candidates?.[0];
+            
+            const text = candidate?.content?.parts?.[0]?.text || "No information found.";
+            const sources = candidate?.groundingMetadata?.groundingAttributions
+                ?.map(attr => ({ uri: attr.web?.uri, title: attr.web?.title }))
+                .filter(s => s.uri && s.title) || [];
+                
+            return { text, sources };
+        }
+
+        /**
+         * [Step 3.5] Asks the AI to classify the verification result.
+         */
+        async function classifyVerification(verificationText) {
+            const systemPrompt = `You are a text classification AI. Based on the provided analysis of a claim, classify the original claim as 'True', 'False', or 'Nuanced'. Respond with only the single-word classification.`;
+             const payload = {
+                contents: [{ parts: [{ text: verificationText }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+            
+            const response = await makeApiCall(payload);
+            const text = (response.candidates?.[0]?.content?.parts?.[0]?.text || 'Nuanced').toLowerCase();
+
+            if (text.includes('true')) return 'true';
+            if (text.includes('false')) return 'false';
+            return 'nuanced';
+        }
+
+        /**
+         * [Step 4] Renders the annotated text and sets up click handlers.
+         */
+        function renderAnnotatedArgument(processedSentences) {
+            annotatedResult.innerHTML = '';
+            processedSentences.forEach((item, index) => {
+                if (item.isClaim) {
+                    const span = document.createElement('span');
+                    span.textContent = item.sentence;
+                    span.classList.add('claim', `claim-${item.classification}`);
+                    span.dataset.index = index;
+                    span.onclick = () => showDetails(item, span);
+                    annotatedResult.appendChild(span);
+                } else {
+                    const textNode = document.createTextNode(item.sentence);
+                    annotatedResult.appendChild(textNode);
+                }
+                 annotatedResult.appendChild(document.createTextNode(' ')); // Add space between sentences
+            });
+        }
+        
+        // --- UI & Utility Functions ---
+
+        function setupInitialUI() {
+            hideError();
+            resultContainer.classList.remove('hidden');
+            loader.classList.remove('hidden');
+            annotatedResult.innerHTML = '';
+            detailsContainer.classList.add('hidden');
+            factCheckBtn.disabled = true;
+            factCheckBtn.textContent = 'Analyzing...';
+        }
+
+        function updateProgress(message) {
+            progressText.textContent = message;
+        }
+
+        function showDetails(item, element) {
+            // Remove 'selected' from any previously selected claim
+            document.querySelectorAll('.claim.selected').forEach(el => el.classList.remove('selected'));
+            // Add 'selected' to the clicked claim
+            element.classList.add('selected');
+
+            detailsText.textContent = item.verification.text;
+            detailsSourcesList.innerHTML = '';
+            if (item.verification.sources.length > 0) {
+                item.verification.sources.forEach(source => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = source.uri;
+                    a.textContent = source.title;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.className = "text-blue-400 hover:underline";
+                    li.appendChild(a);
+                    const urlText = document.createTextNode(` (${new URL(source.uri).hostname})`);
+                    li.appendChild(urlText);
+                    detailsSourcesList.appendChild(li);
+                });
+                detailsSources.classList.remove('hidden');
+            } else {
+                detailsSources.classList.add('hidden');
+            }
+            detailsContainer.classList.remove('hidden');
+        }
+
+        async function makeApiCall(payload) {
+             const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        
+            
+            loader.classList.add('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
