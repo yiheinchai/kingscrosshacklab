@@ -1,0 +1,7 @@
+# Core dependencies - keep versions flexible to avoid conflicts
+h5py
+huggingface_hub
+numpy>=2.0.0,<2.3.0  # Constrained due to opencv-python compatibility
+opencv-python
+torch
+tqdm
