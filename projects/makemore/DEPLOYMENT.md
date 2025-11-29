@@ -1,43 +1,48 @@
-# Makemore API Deployment Guide
+# KXHL Deployment Guide
 
 ## Overview
 
-This guide covers deploying the Makemore name generator API on your old MacBook Pro and exposing it to the internet securely using Cloudflare Tunnel.
+This guide covers deploying the full KXHL stack:
 
-## Prerequisites
+- **React App** → Cloudflare Pages (kxhacklab.com)
+- **Makemore API** → MacBook via Cloudflare Tunnel (makemore.kxhacklab.com)
 
-- Python 3.8+
-- Cloudflare account (free tier works)
-- Your old MacBook Pro with internet connection
+---
 
-## Quick Start (Local Only)
+## 1. React App (Cloudflare Pages)
+
+### Initial Setup
+
+```bash
+# Navigate to the React app
+cd kxhl
+
+# Install dependencies
+npm install
+
+# Run locally
+npm run dev
+```
+
+### Deploy to Cloudflare Pages
+
+```bash
+# Build and deploy
+npm run build
+npx wrangler pages deploy dist --project-name=kingscrosshacklab
+```
+
+The app will be live at `https://kxhacklab.com`
+
+---
+
+## 2. Makemore API (MacBook + Cloudflare Tunnel)
+
+### Start the API
 
 ```bash
 cd projects/makemore
-pip install -r requirements.txt
-python api.py
-```
 
-API will be available at `http://localhost:5001`
-
-## Production Deployment on MacBook
-
-### Option 1: Using the Deploy Script (Recommended)
-
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-This will:
-
-- Create a virtual environment
-- Install dependencies
-- Set up the API as a macOS launchd service (auto-starts on boot)
-
-### Option 2: Manual Setup
-
-```bash
 # Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
@@ -45,142 +50,135 @@ source .venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Run in production mode
+# Run the API
 python api.py --production --port 5001
 ```
 
-## Exposing to the Internet
+API runs at `http://localhost:5001`
 
-### Method 1: Cloudflare Tunnel (Recommended - Free & Secure)
-
-Cloudflare Tunnel creates a secure connection from your MacBook to Cloudflare's network without opening ports on your router.
-
-1. **Install cloudflared:**
-
-   ```bash
-   brew install cloudflared
-   ```
-
-2. **Login to Cloudflare:**
-
-   ```bash
-   cloudflared tunnel login
-   ```
-
-3. **Create a tunnel:**
-
-   ```bash
-   cloudflared tunnel create makemore-api
-   ```
-
-4. **Configure the tunnel:**
-   Create `~/.cloudflared/config.yml`:
-
-   ```yaml
-   tunnel: YOUR_TUNNEL_ID
-   credentials-file: /Users/YOUR_USERNAME/.cloudflared/YOUR_TUNNEL_ID.json
-
-   ingress:
-     - hostname: api.yourdomain.com
-       service: http://localhost:5001
-     - service: http_status:404
-   ```
-
-5. **Add DNS record:**
-
-   ```bash
-   cloudflared tunnel route dns makemore-api api.yourdomain.com
-   ```
-
-6. **Run the tunnel:**
-
-   ```bash
-   cloudflared tunnel run makemore-api
-   ```
-
-7. **Install as service (auto-start):**
-   ```bash
-   sudo cloudflared service install
-   ```
-
-Your API will be available at `https://api.yourdomain.com`
-
-### Method 2: ngrok (Quick Testing)
+### Expose via Cloudflare Tunnel
 
 ```bash
-# Install ngrok
-brew install ngrok
+# Install cloudflared
+brew install cloudflared
 
-# Expose the API
-ngrok http 5001
+# Login to Cloudflare
+cloudflared tunnel login
+
+# Create tunnel
+cloudflared tunnel create makemore-api
 ```
 
-Note: Free tier URLs change each restart. Paid plans offer stable URLs.
+### Configure Tunnel
 
-### Method 3: Port Forwarding (Not Recommended)
+Create `~/.cloudflared/config.yml`:
 
-If you must use port forwarding:
+```yaml
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /Users/YOUR_USERNAME/.cloudflared/YOUR_TUNNEL_ID.json
 
-1. Configure your router to forward port 5001 to your MacBook's local IP
-2. Use a dynamic DNS service if you don't have a static IP
-3. ⚠️ This exposes your machine directly to the internet
+ingress:
+  - hostname: makemore.kxhacklab.com
+    service: http://localhost:5001
+  - service: http_status:404
+```
 
-## Update React App
-
-Once your API is exposed, update the production environment:
+### Add DNS Route
 
 ```bash
-# In kxhl/.env.production
-VITE_API_URL=https://api.yourdomain.com
+cloudflared tunnel route dns makemore-api makemore.kxhacklab.com
 ```
 
-Then rebuild and deploy:
+### Run the Tunnel
 
 ```bash
-cd kxhl
-npm run build
-npx wrangler pages deploy dist
+cloudflared tunnel run makemore-api
 ```
 
-## API Endpoints
+API is now live at `https://makemore.kxhacklab.com`
 
-- `GET/POST /api/generate` - Generate names
-  - `count` (int): Number of names to generate (1-50)
-  - `temperature` (float): Sampling temperature (0.1-2.0)
-- `GET /api/health` - Health check
+---
 
-## Monitoring
+## 3. Environment Configuration
+
+### React App (`kxhl/.env.production`)
+
+```
+VITE_API_URL=https://makemore.kxhacklab.com
+```
+
+### React App (`kxhl/.env`)
+
+```
+VITE_API_URL=http://localhost:5001
+```
+
+---
+
+## 4. Quick Commands
+
+### Deploy React App
 
 ```bash
-# View logs
-tail -f api.log
-
-# Check if running
-curl http://localhost:5001/api/health
-
-# Check service status
-launchctl list | grep makemore
+cd kxhl && npm run build && npx wrangler pages deploy dist --project-name=kingscrosshacklab
 ```
 
-## Troubleshooting
+### Start API + Tunnel (2 terminals)
 
-**API not starting:**
+```bash
+# Terminal 1: API
+cd projects/makemore && source .venv/bin/activate && python api.py --production
+
+# Terminal 2: Tunnel
+cloudflared tunnel run makemore-api
+```
+
+### Check API Health
+
+```bash
+curl https://makemore.kxhacklab.com/api/health
+```
+
+---
+
+## 5. API Endpoints
+
+| Endpoint        | Method   | Description    |
+| --------------- | -------- | -------------- |
+| `/api/generate` | GET/POST | Generate names |
+| `/api/health`   | GET      | Health check   |
+
+**Parameters:**
+
+- `count` (int): 1-50
+- `temperature` (float): 0.1-2.0
+
+---
+
+## 6. Troubleshooting
+
+**API errors:**
 
 ```bash
 # Check logs
-cat api.error.log
+tail -f api.log
 
-# Manually test
-source .venv/bin/activate
-python api.py
+# Test locally
+curl http://localhost:5001/api/health
 ```
 
-**Model not loading:**
+**Tunnel issues:**
 
-- Delete `model.pt` and restart - it will retrain
-- Check you have enough disk space
+```bash
+# Check tunnel status
+cloudflared tunnel info makemore-api
 
-**CORS errors:**
+# Restart tunnel
+cloudflared tunnel run makemore-api
+```
 
-- The API allows all origins by default
-- Check browser console for specific errors
+**React app not calling API:**
+
+- Check `kxhl/.env.production` has correct URL
+- Rebuild: `npm run build`
+- Redeploy: `npx wrangler pages deploy dist --project-name=kingscrosshacklab`
