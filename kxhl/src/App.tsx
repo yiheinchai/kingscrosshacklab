@@ -12,10 +12,11 @@ import MakemorePage from "./components/MakemorePage";
 // Root Layout Component
 function RootLayout() {
   const logoRef = useRef<HTMLAnchorElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const originalLogoText = "KXHL";
 
   const glitchText = (element: HTMLElement, originalText: string) => {
-    const glitchChars = "!<>-_\\/[]{}—=+*^?#________";
+    const glitchChars = "!<>-_\\/[]{}—=+*^?#@$%&";
     let iteration = 0;
 
     const interval = setInterval(() => {
@@ -34,16 +35,16 @@ function RootLayout() {
       }
 
       iteration += 1 / 3;
-    }, 50);
+    }, 40);
   };
 
   const handleLogoMouseEnter = () => {
     if (logoRef.current) {
       logoRef.current.style.textShadow = `
-        2px 0 var(--accent-red),
-        -2px 0 var(--accent-blue),
-        0 0 20px var(--accent),
-        0 0 40px var(--accent)
+        3px 0 var(--accent-red),
+        -3px 0 var(--accent-blue),
+        0 0 30px var(--accent),
+        0 0 60px var(--accent)
       `;
       glitchText(logoRef.current, originalLogoText);
     }
@@ -73,19 +74,20 @@ function RootLayout() {
       particle.style.background =
         colors[Math.floor(Math.random() * colors.length)];
 
-      particle.style.width = Math.random() * 8 + 2 + "px";
-      particle.style.height = particle.style.width;
-      particle.style.animationDuration = Math.random() * 4 + 3 + "s";
-      particle.style.animationDelay = Math.random() * 2 + "s";
+      const size = Math.random() * 6 + 2;
+      particle.style.width = size + "px";
+      particle.style.height = size + "px";
+      particle.style.animationDuration = Math.random() * 15 + 10 + "s";
+      particle.style.animationDelay = Math.random() * 5 + "s";
 
       document.body.appendChild(particle);
 
       setTimeout(() => {
         particle.remove();
-      }, 8000);
+      }, 25000);
     };
 
-    const particleInterval = setInterval(createParticle, 2000);
+    const particleInterval = setInterval(createParticle, 4000);
 
     return () => {
       clearInterval(particleInterval);
@@ -110,12 +112,25 @@ function RootLayout() {
           >
             KXHL
           </Link>
-          <ul className="nav-links">
+          <button
+            className={`mobile-menu-btn ${mobileMenuOpen ? "open" : ""}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <ul className={`nav-links ${mobileMenuOpen ? "open" : ""}`}>
             <li>
-              <Link to="/">Home</Link>
+              <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                Home
+              </Link>
             </li>
             <li>
-              <Link to="/projects">Projects</Link>
+              <Link to="/projects" onClick={() => setMobileMenuOpen(false)}>
+                Projects
+              </Link>
             </li>
           </ul>
         </nav>
@@ -127,10 +142,7 @@ function RootLayout() {
 
       <footer>
         <div className="container">
-          <p>
-            &copy; 2025 Kings Cross Hack Lab. Every Wednesday. Ship or get
-            shipped.
-          </p>
+          <p>© 2025 Kings Cross Hack Lab — Every Wednesday</p>
         </div>
       </footer>
     </>
@@ -149,9 +161,9 @@ function HomePage() {
   useEffect(() => {
     const targets = {
       builders: 47,
-      products: 156,
-      sessions: 73,
-      mrr: 337000,
+      products: 8,
+      sessions: 9,
+      mrr: 0,
     };
 
     const duration = 2000;
@@ -191,13 +203,13 @@ function HomePage() {
                 Hack Lab
               </h1>
               <p>
-                Weekly live-building sessions where founders, developers,
-                designers, marketers, and product people ship together. Join a
-                team, start your own, or intern with experienced builders. Every
-                Wednesday. No excuses.
+                A weekly builders collective. Founders, developers, designers
+                ship together. Join a squad, start your own, or contribute to
+                existing projects. Wednesday nights. Real products. Real
+                accountability.
               </p>
               <a
-                href="https://docs.google.com/document/d/1ex272JUd1d9c7ObC6LBO0F4B6KIyvTGj/edit?usp=sharing&ouid=114141808906371201855&rtpof=true&sd=true"
+                href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=wwt"
                 className="cta-button"
               >
                 <span>Join the Lab</span>
@@ -213,25 +225,25 @@ function HomePage() {
               </div>
               <div className="terminal-body">
                 <div className="terminal-line">
-                  <span className="prompt">hacklab@live:~$</span>
-                  <span className="command"> npm run build-product</span>
+                  <span className="prompt">$</span>
+                  <span className="command"> npm run ship</span>
                 </div>
                 <div className="terminal-line output">
-                  📈 Updating leaderboard position... #7 → #3
+                  → Leaderboard updated: #7 → #3
                 </div>
                 <div className="terminal-line">
-                  <span className="prompt">hacklab@live:~$</span>
-                  <span className="command"> git push origin feature/mvp</span>
+                  <span className="prompt">$</span>
+                  <span className="command"> git push origin mvp</span>
                 </div>
                 <div className="terminal-line output">
-                  🚀 Live stream viewers: 47 | Prediction market: 78% success
+                  → Viewers: 47 | Success odds: 78%
                 </div>
                 <div className="terminal-line">
-                  <span className="prompt">hacklab@live:~$</span>
-                  <span className="command"> ./launch.sh --wednesday</span>
+                  <span className="prompt">$</span>
+                  <span className="command"> ./launch --wednesday</span>
                 </div>
                 <div className="terminal-line output">
-                  💰 Revenue goal: $1,337 MRR | Status: SHIPPING
+                  → Status: SHIPPING
                   <span className="cursor"></span>
                 </div>
               </div>
@@ -245,45 +257,41 @@ function HomePage() {
           <div className="section-header">
             <h2>Ship or Get Shipped</h2>
             <p>
-              Every Wednesday. Live-built. Publicly tracked. Mutually
-              accountable. All roles welcome.
+              Public accountability. Live building. All disciplines welcome.
             </p>
           </div>
 
           <div className="features-grid">
             <div className="feature-card">
               <div className="feature-icon">📺</div>
-              <h3>Live Build Sessions</h3>
+              <h3>Live Sessions</h3>
               <p>
-                Code, design, and strategize live every Wednesday. Stream your
-                progress across all disciplines.
+                Build in public every Wednesday. Stream your progress. Get
+                real-time feedback.
               </p>
             </div>
 
             <div className="feature-card">
               <div className="feature-icon">📈</div>
-              <h3>Profitability Leaderboard</h3>
+              <h3>Leaderboard</h3>
               <p>
-                Track MRR, users, and growth metrics. Compete with fellow
-                builders. Transparency breeds results.
+                Track metrics that matter. MRR, users, growth. Compete openly.
               </p>
             </div>
 
             <div className="feature-card">
               <div className="feature-icon">⏱️</div>
-              <h3>Accountability System</h3>
+              <h3>Accountability</h3>
               <p>
-                Weekly goal setting and progress tracking. Miss your targets?
-                Face the community's judgment.
+                Weekly goals. Public tracking. Miss targets? Face the community.
               </p>
             </div>
 
             <div className="feature-card">
               <div className="feature-icon">🤝</div>
-              <h3>Cross-Team Internships</h3>
+              <h3>Internships</h3>
               <p>
-                No idea? No problem. Contribute to other projects while finding
-                your own direction.
+                No idea yet? Contribute to others while finding your direction.
               </p>
             </div>
 
@@ -291,8 +299,7 @@ function HomePage() {
               <div className="feature-icon">🚀</div>
               <h3>Launch Pipeline</h3>
               <p>
-                From idea to product-market fit. Structured path combining tech,
-                design, and growth expertise.
+                Idea to PMF. Structured path combining tech, design, and growth.
               </p>
             </div>
 
@@ -300,9 +307,8 @@ function HomePage() {
               <div className="feature-icon">📊</div>
               <h3>Prediction Market</h3>
               <p>
-                Play-money prediction market where users trade on startup
-                milestones. Public odds track progress and reward accurate
-                forecasters.
+                Trade on milestones. Public odds track progress. Skin in the
+                game.
               </p>
             </div>
           </div>
@@ -312,35 +318,25 @@ function HomePage() {
       <section className="stats" id="stats">
         <div className="container">
           <div className="section-header">
-            <h2>Live Leaderboard</h2>
-            <p>
-              Real builders. Real metrics. Real money. Updated every Wednesday.
-            </p>
+            <h2>Live Metrics</h2>
+            <p>Real builders. Real numbers. Updated every Wednesday.</p>
           </div>
 
           <div className="stats-grid">
             <div className="stat-item">
-              <span className="stat-number">
-                {counters.builders.toLocaleString()}
-              </span>
-              <span className="stat-label">Active Builders</span>
+              <span className="stat-number">{counters.builders}</span>
+              <span className="stat-label">Builders</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">
-                {counters.products.toLocaleString()}
-              </span>
-              <span className="stat-label">Products Launched</span>
+              <span className="stat-number">{counters.products}</span>
+              <span className="stat-label">Launched</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">
-                {counters.sessions.toLocaleString()}
-              </span>
-              <span className="stat-label">Live Sessions</span>
+              <span className="stat-number">{counters.sessions}</span>
+              <span className="stat-label">Sessions</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">
-                {counters.mrr.toLocaleString()}
-              </span>
+              <span className="stat-number">${counters.mrr}K</span>
               <span className="stat-label">Combined MRR</span>
             </div>
           </div>
