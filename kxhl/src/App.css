@@ -7,5 +7,10 @@ main {
 
 /* Active link styles for TanStack Router */
 nav a[data-status="active"] {
-  color: var(--accent);
+  color: var(--text-primary);
+  background: rgba(212, 149, 106, 0.1);
+}
+
+nav a[data-status="active"]::after {
+  opacity: 1;
 }

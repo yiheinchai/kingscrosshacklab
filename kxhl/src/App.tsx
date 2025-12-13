@@ -8,34 +8,43 @@ import {
 } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef } from "react";
 import MakemorePage from "./components/MakemorePage";
+import logoImage from "./assets/logo.jpg";
 
 // Root Layout Component
 function RootLayout() {
   const logoRef = useRef<HTMLAnchorElement>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const originalLogoText = "KXHL";
+  const expandedLogoText = "Kings Cross Hack Lab";
 
-  const glitchText = (element: HTMLElement, originalText: string) => {
+  const glitchText = (
+    element: HTMLElement,
+    targetText: string,
+    onComplete?: () => void
+  ) => {
     const glitchChars = "!<>-_\\/[]{}—=+*^?#@$%&";
     let iteration = 0;
 
     const interval = setInterval(() => {
-      element.textContent = originalText
+      element.textContent = targetText
         .split("")
         .map((_letter, index) => {
           if (index < iteration) {
-            return originalText[index];
+            return targetText[index];
           }
           return glitchChars[Math.floor(Math.random() * glitchChars.length)];
         })
         .join("");
 
-      if (iteration >= originalText.length) {
+      if (iteration >= targetText.length) {
         clearInterval(interval);
+        if (onComplete) {
+          onComplete();
+        }
       }
 
-      iteration += 1 / 3;
-    }, 40);
+      iteration += 1;
+    }, 20);
   };
 
   const handleLogoMouseEnter = () => {
@@ -46,7 +55,11 @@ function RootLayout() {
         0 0 30px var(--accent),
         0 0 60px var(--accent)
       `;
-      glitchText(logoRef.current, originalLogoText);
+      glitchText(logoRef.current, expandedLogoText, () => {
+        if (logoRef.current) {
+          logoRef.current.style.textShadow = "none";
+        }
+      });
     }
   };
 
@@ -97,20 +110,21 @@ function RootLayout() {
   return (
     <>
       <div className="grid-background"></div>
-      <div className="particle"></div>
-      <div className="particle"></div>
-      <div className="particle"></div>
+      <div className="blob blob-1"></div>
+      <div className="blob blob-2"></div>
 
       <header>
         <nav className="container">
-          <Link
-            to="/"
-            className="logo"
-            ref={logoRef}
-            onMouseEnter={handleLogoMouseEnter}
-            onMouseLeave={handleLogoMouseLeave}
-          >
-            KXHL
+          <Link to="/" className="logo-container">
+            <img src={logoImage} alt="KXHL Logo" className="logo-image" />
+            <span
+              className="logo-text"
+              ref={logoRef}
+              onMouseEnter={handleLogoMouseEnter}
+              onMouseLeave={handleLogoMouseLeave}
+            >
+              KXHL
+            </span>
           </Link>
           <button
             className={`mobile-menu-btn ${mobileMenuOpen ? "open" : ""}`}
@@ -128,6 +142,16 @@ function RootLayout() {
               </Link>
             </li>
             <li>
+              <a href="#philosophy" onClick={() => setMobileMenuOpen(false)}>
+                Philosophy
+              </a>
+            </li>
+            <li>
+              <a href="#community" onClick={() => setMobileMenuOpen(false)}>
+                Community
+              </a>
+            </li>
+            <li>
               <Link to="/projects" onClick={() => setMobileMenuOpen(false)}>
                 Projects
               </Link>
@@ -142,7 +166,10 @@ function RootLayout() {
 
       <footer>
         <div className="container">
-          <p>© 2025 Kings Cross Hack Lab — Every Wednesday</p>
+          <p>
+            © 2025 Kings Cross Hack Lab — Where ideas become real, every
+            Wednesday
+          </p>
         </div>
       </footer>
     </>
@@ -151,195 +178,298 @@ function RootLayout() {
 
 // Home Page Component
 function HomePage() {
-  const [counters, setCounters] = useState({
-    builders: 0,
-    products: 0,
-    sessions: 0,
-    mrr: 0,
-  });
-
-  useEffect(() => {
-    const targets = {
-      builders: 47,
-      products: 8,
-      sessions: 9,
-      mrr: 0,
-    };
-
-    const duration = 2000;
-    const steps = 100;
-    const stepDuration = duration / steps;
-
-    let step = 0;
-    const interval = setInterval(() => {
-      step++;
-      const progress = step / steps;
-
-      setCounters({
-        builders: Math.floor(targets.builders * progress),
-        products: Math.floor(targets.products * progress),
-        sessions: Math.floor(targets.sessions * progress),
-        mrr: Math.floor(targets.mrr * progress),
-      });
-
-      if (step >= steps) {
-        clearInterval(interval);
-        setCounters(targets);
-      }
-    }, stepDuration);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <>
-      <section className="hero">
+      {/* Hero Section */}
+      <section className="hero-new">
         <div className="container">
-          <div className="hero-content">
-            <div className="hero-text">
-              <h1>
-                Kings Cross
-                <br />
-                Hack Lab
-              </h1>
-              <p>
-                A weekly builders collective. Founders, developers, designers
-                ship together. Join a squad, start your own, or contribute to
-                existing projects. Wednesday nights. Real products. Real
-                accountability.
-              </p>
-              <a
-                href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=wwt"
-                className="cta-button"
-              >
-                <span>Join the Lab</span>
-                <span>→</span>
-              </a>
+          <div className="hero-badge">
+            <span className="pulse-dot"></span>
+            Kings Cross, London
+          </div>
+
+          <h1 className="hero-title">
+            Optimize for <span className="gradient-text">Fun.</span>
+          </h1>
+
+          <p className="hero-description">
+            The Sanctuary for Passion Projects. It doesn't have to be useful. It
+            doesn't have to make money. It just has to be yours.
+          </p>
+
+          <div className="hero-cta">
+            <a
+              href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=hqrc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
+              Start Building
+            </a>
+            <a href="#philosophy" className="btn-secondary">
+              Read the Manifesto
+            </a>
+          </div>
+        </div>
+
+        <svg className="hero-decorative-line" preserveAspectRatio="none">
+          <path
+            d="M0,50 C300,150 600,-50 1440,100"
+            stroke="#D98E73"
+            strokeWidth="2"
+            fill="none"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+      </section>
+
+      {/* Philosophy Section */}
+      <section id="philosophy" className="philosophy-section">
+        <div className="container">
+          <div className="philosophy-grid">
+            <div className="philosophy-content">
+              <h2>
+                The Anti-ROI <br />
+                <span className="accent-text">Mindset</span>
+              </h2>
+              <div className="philosophy-text">
+                <p className="highlight">
+                  The world is obsessed with utility. "How does this scale?"
+                  "What's the business model?"
+                </p>
+                <p className="strong">We don't care.</p>
+                <p>
+                  The pursuit doesn't have to make money. It doesn't even have
+                  to be useful to the world. As long as you are passionate about
+                  it, you love what you do, and you find it immensely fun, this
+                  is the place to pursue it.
+                </p>
+                <blockquote>
+                  "We prioritize 'doing'. Whether you have a vague interest, a
+                  wild idea, or a niche rabbit hole you want to dig into, here
+                  is the place to make it happen."
+                </blockquote>
+              </div>
             </div>
 
-            <div className="terminal">
-              <div className="terminal-header">
-                <div className="terminal-dot dot-red"></div>
-                <div className="terminal-dot dot-yellow"></div>
-                <div className="terminal-dot dot-green"></div>
+            <div className="philosophy-cards">
+              <div className="glass-card">
+                <div className="card-icon">⚡</div>
+                <h3>Pure Passion</h3>
+                <p>
+                  Unshackle your creativity from the constraints of capitalism.
+                  Build because you must.
+                </p>
               </div>
-              <div className="terminal-body">
-                <div className="terminal-line">
-                  <span className="prompt">$</span>
-                  <span className="command"> npm run ship</span>
-                </div>
-                <div className="terminal-line output">
-                  → Leaderboard updated: #7 → #3
-                </div>
-                <div className="terminal-line">
-                  <span className="prompt">$</span>
-                  <span className="command"> git push origin mvp</span>
-                </div>
-                <div className="terminal-line output">
-                  → Viewers: 47 | Success odds: 78%
-                </div>
-                <div className="terminal-line">
-                  <span className="prompt">$</span>
-                  <span className="command"> ./launch --wednesday</span>
-                </div>
-                <div className="terminal-line output">
-                  → Status: SHIPPING
-                  <span className="cursor"></span>
-                </div>
+              <div className="glass-card offset">
+                <div className="card-icon accent">🐰</div>
+                <h3>Rabbit Holes</h3>
+                <p>
+                  Dive deep into the niche, the obscure, and the wonderfully
+                  complex.
+                </p>
+              </div>
+              <div className="glass-card">
+                <div className="card-icon accent">🔨</div>
+                <h3>Just Build</h3>
+                <p>
+                  Less talking, more doing. We turn the "someday" projects into
+                  "today".
+                </p>
+              </div>
+              <div className="glass-card offset">
+                <div className="card-icon">😄</div>
+                <h3>Optimize Fun</h3>
+                <p>
+                  If it's not fun, why are we doing it? Joy is our primary
+                  metric.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="features" id="features">
+      {/* Community Section */}
+      <section id="community" className="community-section">
         <div className="container">
           <div className="section-header">
-            <h2>Ship or Get Shipped</h2>
+            <h2>Who belongs here?</h2>
             <p>
-              Public accountability. Live building. All disciplines welcome.
+              We are a collective of makers. No matter your medium, if you have
+              the itch to create, you have a seat at our table.
             </p>
           </div>
 
-          <div className="features-grid">
-            <div className="feature-card">
-              <div className="feature-icon">📺</div>
-              <h3>Live Sessions</h3>
-              <p>
-                Build in public every Wednesday. Stream your progress. Get
-                real-time feedback.
-              </p>
+          <div className="community-grid">
+            <div className="community-card">
+              <div className="card-gradient-overlay"></div>
+              <div className="card-visual">
+                <svg
+                  className="visual-svg"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <pattern
+                      id="grid"
+                      width="10"
+                      height="10"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 10 0 L 0 0 0 10"
+                        fill="none"
+                        stroke="#D98E73"
+                        strokeWidth="0.5"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="100" height="100" fill="url(#grid)" />
+                </svg>
+              </div>
+              <div className="card-content">
+                <div className="card-icon-circle">
+                  <span>💻</span>
+                </div>
+                <h3>Builders & Engineers</h3>
+                <p>
+                  Hardware hackers, software poets, and system architects. If it
+                  compiles or solders, bring it here.
+                </p>
+              </div>
             </div>
 
-            <div className="feature-card">
-              <div className="feature-icon">📈</div>
-              <h3>Leaderboard</h3>
-              <p>
-                Track metrics that matter. MRR, users, growth. Compete openly.
-              </p>
+            <div className="community-card">
+              <div className="card-gradient-overlay"></div>
+              <div className="card-visual">
+                <svg className="visual-svg" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    stroke="#F2C5B0"
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                  <circle
+                    cx="30"
+                    cy="70"
+                    r="20"
+                    stroke="#F2C5B0"
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                  <circle
+                    cx="70"
+                    cy="30"
+                    r="20"
+                    stroke="#F2C5B0"
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                </svg>
+              </div>
+              <div className="card-content">
+                <div className="card-icon-circle">
+                  <span>🎨</span>
+                </div>
+                <h3>Artists & Designers</h3>
+                <p>
+                  Digital artists, sculptors, and UI wizards. We believe form is
+                  just as important as function.
+                </p>
+              </div>
             </div>
 
-            <div className="feature-card">
-              <div className="feature-icon">⏱️</div>
-              <h3>Accountability</h3>
+            <div className="community-card">
+              <div className="card-gradient-overlay"></div>
+              <div className="card-visual">
+                <svg className="visual-svg" viewBox="0 0 100 100">
+                  <path
+                    d="M10,90 Q50,10 90,90"
+                    fill="none"
+                    stroke="#5E3A2F"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M10,10 Q50,90 90,10"
+                    fill="none"
+                    stroke="#5E3A2F"
+                    strokeWidth="2"
+                  />
+                </svg>
+              </div>
+              <div className="card-content">
+                <div className="card-icon-circle">
+                  <span>💡</span>
+                </div>
+                <h3>Thinkers & Tinkers</h3>
+                <p>
+                  Got a niche idea? A weird obsession? We help you turn that
+                  fleeting thought into reality.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Accountability Section */}
+      <section className="accountability-section">
+        <div className="container">
+          <h2>
+            Where ideas go to <span className="italic accent-text">live</span>.
+          </h2>
+          <p className="subtitle">
+            Too many people have an idea and forget about it. We exist to break
+            that cycle.
+          </p>
+
+          <div className="steps-grid">
+            <div className="step">
+              <h4>01. Commit</h4>
               <p>
-                Weekly goals. Public tracking. Miss targets? Face the community.
+                State your goal. Whether it's building a weird clock or coding a
+                game engine. Put it on the board.
               </p>
             </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">🤝</div>
-              <h3>Internships</h3>
+            <div className="step">
+              <h4>02. Accountability</h4>
               <p>
-                No idea yet? Contribute to others while finding your direction.
+                We check in. We push you. Not like a boss, but like a gym buddy
+                for your brain.
               </p>
             </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">🚀</div>
-              <h3>Launch Pipeline</h3>
+            <div className="step">
+              <h4>03. Reality</h4>
               <p>
-                Idea to PMF. Structured path combining tech, design, and growth.
-              </p>
-            </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">📊</div>
-              <h3>Prediction Market</h3>
-              <p>
-                Trade on milestones. Public odds track progress. Skin in the
-                game.
+                Walk away with something real. A prototype, a finished piece, a
+                story.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="stats" id="stats">
+      {/* Join Section */}
+      <section id="join" className="join-section">
         <div className="container">
-          <div className="section-header">
-            <h2>Live Metrics</h2>
-            <p>Real builders. Real numbers. Updated every Wednesday.</p>
-          </div>
+          <h2>Ready to dig into your rabbit hole?</h2>
 
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-number">{counters.builders}</span>
-              <span className="stat-label">Builders</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">{counters.products}</span>
-              <span className="stat-label">Launched</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">{counters.sessions}</span>
-              <span className="stat-label">Sessions</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">${counters.mrr}K</span>
-              <span className="stat-label">Combined MRR</span>
-            </div>
-          </div>
+          <p className="join-description">
+            Join our WhatsApp community and start building every Wednesday at
+            Kings Cross, London.
+          </p>
+
+          <a
+            href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=hqrc"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gradient join-button"
+          >
+            Join WhatsApp Community
+          </a>
         </div>
       </section>
     </>
@@ -351,22 +481,23 @@ const projects = [
   {
     id: "hameem",
     name: "Hameem",
-    description: "Resolve - A conflict resolution platform for teams",
-    tags: ["Web", "Collaboration", "Communication"],
+    description:
+      "A platform helping teams navigate conflict and communicate better",
+    tags: ["Communication", "Teams", "Wellbeing"],
   },
   {
     id: "makemore",
     name: "Makemore",
     description:
-      "Character-level language model for generating names using neural networks",
-    tags: ["AI", "Machine Learning", "NLP"],
+      "An exploration of how AI can generate creative names — learning by building",
+    tags: ["AI", "Learning", "Creative"],
   },
   {
     id: "tinyworlds",
     name: "TinyWorlds",
     description:
-      "World model for video games - generate game frames using deep learning",
-    tags: ["AI", "Gaming", "Computer Vision"],
+      "Imagining new video game worlds — what if AI could dream up game scenes?",
+    tags: ["AI", "Games", "Imagination"],
   },
 ];
 
@@ -376,7 +507,11 @@ function ProjectsPage() {
     <section className="projects-page">
       <div className="container">
         <div className="section-header">
-          <h2>Projects</h2>
+          <h2>Our Projects</h2>
+          <p>
+            Passion projects from our community — built for fun, learning, and
+            the joy of creation.
+          </p>
         </div>
 
         <div className="projects-grid">
@@ -385,9 +520,10 @@ function ProjectsPage() {
               key={project.id}
               to="/projects/$projectId"
               params={{ projectId: project.id }}
-              className="project-card"
+              className="project-card glass-card"
             >
               <h3>{project.name}</h3>
+              <p>{project.description}</p>
               <div className="project-tags">
                 {project.tags.map((tag) => (
                   <span key={tag} className="project-tag">
@@ -395,6 +531,7 @@ function ProjectsPage() {
                   </span>
                 ))}
               </div>
+              <span className="project-arrow">→</span>
             </Link>
           ))}
         </div>
@@ -452,12 +589,22 @@ function ProjectDetailPage() {
     <section className="project-detail">
       <div className="container">
         <Link to="/projects" className="back-link">
-          ←
+          ← Back to Projects
         </Link>
         <div className="project-header">
           <h1>{project.name}</h1>
+          <p className="project-description">{project.description}</p>
+          <div className="project-tags">
+            {project.tags.map((tag) => (
+              <span key={tag} className="project-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
-        {projectContent[projectId]}
+        <div className="project-content-wrapper">
+          {projectContent[projectId]}
+        </div>
       </div>
     </section>
   );
