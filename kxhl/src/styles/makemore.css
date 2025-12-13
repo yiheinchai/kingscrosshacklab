@@ -1,0 +1,462 @@
+/* Makemore Page Styles */
+.makemore-page {
+  padding: 2rem 0;
+}
+
+.makemore-page .project-subtitle {
+  margin-top: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-secondary, #888);
+}
+
+/* Tabs */
+.makemore-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 2rem 0;
+  border-bottom: 2px solid rgba(217, 142, 115, 0.2);
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #888);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: var(--accent, #d98e73);
+}
+
+.tab-button.active {
+  color: var(--accent, #d98e73);
+  border-bottom-color: var(--accent, #d98e73);
+}
+
+/* Generator Section */
+.generator-section {
+  padding: 2rem 0;
+  max-width: 100%;
+}
+
+.generator-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.generator-header h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin-bottom: 0.5rem;
+  color: var(--text-primary, #fff);
+}
+
+.generator-description {
+  color: var(--text-secondary, #888);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Generator Controls */
+.generator-controls {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.control-group {
+  margin-bottom: 1.5rem;
+}
+
+.control-group:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.control-group label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary, #fff);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.control-value {
+  color: var(--accent, #d98e73);
+  font-weight: 600;
+  min-width: 3rem;
+  text-align: right;
+}
+
+.control-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.control-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent, #d98e73);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.control-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent, #d98e73);
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.control-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+.generate-button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.generate-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Generated Results */
+.generated-results {
+  margin-top: 2rem;
+}
+
+.results-title {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #fff);
+  text-align: center;
+}
+
+.names-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.name-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(217, 142, 115, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.name-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent, #d98e73);
+  box-shadow: 0 4px 12px rgba(217, 142, 115, 0.3);
+}
+
+.drug-name-card {
+  background: rgba(142, 115, 217, 0.05);
+  border-color: rgba(142, 115, 217, 0.2);
+}
+
+.drug-name-card:hover {
+  border-color: #8e73d9;
+  box-shadow: 0 4px 12px rgba(142, 115, 217, 0.3);
+}
+
+.name-text {
+  font-size: 1rem;
+  color: var(--text-primary, #fff);
+  word-break: break-word;
+}
+
+/* Drug Guess Game */
+.drug-game-section {
+  padding: 2rem 0;
+}
+
+.game-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 80px;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent, #d98e73);
+}
+
+.reset-button {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.game-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.drug-display {
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.3s ease;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.drug-display.correct {
+  background: rgba(76, 175, 80, 0.15);
+  border: 2px solid rgba(76, 175, 80, 0.4);
+}
+
+.drug-display.incorrect {
+  background: rgba(244, 67, 54, 0.15);
+  border: 2px solid rgba(244, 67, 54, 0.4);
+}
+
+.drug-display.loading {
+  opacity: 0.5;
+}
+
+.drug-name {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  word-break: break-word;
+  display: block;
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  color: var(--text-secondary, #888);
+}
+
+.feedback {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.feedback-correct {
+  color: #4caf50;
+}
+
+.feedback-incorrect {
+  color: #f44336;
+}
+
+.game-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.game-btn {
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary, #fff);
+}
+
+.real-btn:hover {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+  transform: translateY(-2px);
+}
+
+.fake-btn:hover {
+  background: rgba(217, 142, 115, 0.2);
+  border-color: var(--accent, #d98e73);
+  transform: translateY(-2px);
+}
+
+.game-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.game-hint {
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.game-hint p {
+  margin: 0;
+  color: var(--text-secondary, #888);
+  font-size: 0.9rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .makemore-tabs {
+    gap: 0.25rem;
+  }
+
+  .tab-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .generator-controls {
+    padding: 1rem;
+  }
+
+  .names-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .name-card {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .name-text {
+    font-size: 0.9rem;
+  }
+
+  .game-card {
+    padding: 1.5rem 1rem;
+    min-height: 200px;
+  }
+
+  .drug-display {
+    padding: 1.5rem 0.5rem;
+    min-height: 100px;
+  }
+
+  .game-stats {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .game-buttons {
+    gap: 0.75rem;
+  }
+
+  .game-btn {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .makemore-page {
+    padding: 1rem 0;
+  }
+
+  .generator-section {
+    padding: 1rem 0;
+  }
+
+  .names-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .name-card {
+    padding: 0.5rem;
+  }
+
+  .name-text {
+    font-size: 0.85rem;
+  }
+
+  .game-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .drug-name {
+    font-size: 1.5rem;
+  }
+}
