@@ -40,7 +40,7 @@ def load_model(model_type):
     if model_type == "names":
         model_path = os.path.join(os.path.dirname(__file__), "model.pt")
     elif model_type == "drugs":
-        model_path = os.path.join(os.path.dirname(__file__), "drugs", "drugs_model.pt")
+        model_path = os.path.join(os.path.dirname(__file__), "drugs_model.pt")
     else:
         raise ValueError(f"Unknown model type: {model_type}")
 
@@ -67,8 +67,21 @@ def generate_name(model_type="names", temperature=1.0):
             params["W_2"],
             params["b_2"],
         )
-        tokeniser = {char: idx for idx, char in enumerate(params.get("chars", []))}
-        detokeniser = {idx: char for idx, char in enumerate(params.get("chars", []))}
+
+        # Load chars from params or from names.txt
+        if "chars" in params:
+            chars = params["chars"]
+        else:
+            # Load from names.txt in parent directory
+            names_path = os.path.join(os.path.dirname(__file__), "..", "names.txt")
+            with open(names_path, "r") as f:
+                names = f.read().splitlines()
+            chars = sorted(
+                list(set([char for name in names for char in name] + ["<s>", "<e>"]))
+            )
+
+        tokeniser = {char: idx for idx, char in enumerate(chars)}
+        detokeniser = {idx: char for idx, char in enumerate(chars)}
         context_length = params.get("context_length", 3)
         embedding_dims = params.get("embedding_dims", 8)
 
