@@ -519,7 +519,7 @@ function ProjectsPage() {
             <Link
               key={project.id}
               to="/projects/$projectId"
-              params={{ projectId: project.id }}
+              params={{ projectId: project.id as string }}
               className="project-card glass-card"
             >
               <h3>{project.name}</h3>
