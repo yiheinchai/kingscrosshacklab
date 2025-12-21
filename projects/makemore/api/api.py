@@ -14,9 +14,13 @@ import torch
 import torch.nn.functional as F
 import os
 import argparse
+from rossetta_flask import RossettaFlask
 
 app = Flask(__name__)
 # Allow CORS from any origin for the API
+app.secret_key = os.urandom(24)
+app = RossettaFlask(app)
+
 CORS(
     app,
     origins=["*"],
