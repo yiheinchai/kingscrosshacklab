@@ -4,28 +4,47 @@ Serves trained character-level language models for name generation.
 Supports multiple models: names and drugs.
 
 Production deployment on MacBook:
-1. Run with gunicorn: gunicorn -w 4 -b 0.0.0.0:5001 api:app
+1. Run with uvicorn: uvicorn api:app --host 0.0.0.0 --port 5001 --workers 4
 2. Or use the built-in server with: python api.py --production
 """
 
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 import torch
 import torch.nn.functional as F
 import os
 import argparse
-from rossetta_flask import RossettaFlask
+import sys
 
-app = Flask(__name__)
-# Allow CORS from any origin for the API
-app.secret_key = os.urandom(24)
-app = RossettaFlask(app)
+# Add parent directory to path to import rossetta_fastapi
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-CORS(
+from rossetta_fastapi import setup_rossetta
+
+# Create FastAPI app
+app = FastAPI()
+
+# Setup Rossetta - this adds middleware AND creates /api/init-session endpoint
+setup_rossetta(
     app,
-    origins=["*"],
-    methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    secret=os.environ.get("ROSSETTA_SECRET_KEY", "dev-rossetta-secret"),
+    timestamp_window=300000,  # 5 minutes
+)
+
+# Add session middleware after Rossetta
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SESSION_SECRET_KEY", os.urandom(24).hex()),
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Global model cache
@@ -165,13 +184,23 @@ def generate_name(model_type="names", temperature=1.0):
     return name
 
 
-@app.route("/api/generate", methods=["GET", "POST"])
-def generate():
+@app.get("/api/generate")
+@app.post("/api/generate")
+async def generate(request: Request):
     """Generate names endpoint - supports both 'names' and 'drugs' models"""
+    # Handle both GET and POST requests
     if request.method == "POST":
-        data = request.get_json() or {}
+        # For POST, access decrypted data
+        data = getattr(request.state, "decrypted_data", {})
+        if not data:
+            # If no decrypted data, try to parse JSON body
+            try:
+                data = await request.json()
+            except:
+                data = {}
     else:
-        data = request.args
+        # For GET, use query parameters
+        data = dict(request.query_params)
 
     count = int(data.get("count", 5))
     temperature = float(data.get("temperature", 1.0))
@@ -179,14 +208,9 @@ def generate():
 
     # Validate model type
     if model_type not in ["names", "drugs"]:
-        return (
-            jsonify(
-                {
-                    "error": f"Invalid model type: {model_type}. Must be 'names' or 'drugs'"
-                }
-            ),
-            400,
-        )
+        return {
+            "error": f"Invalid model type: {model_type}. Must be 'names' or 'drugs'"
+        }
 
     count = min(max(count, 1), 50)  # Clamp between 1 and 50
     temperature = min(max(temperature, 0.1), 2.0)  # Clamp between 0.1 and 2.0
@@ -198,26 +222,27 @@ def generate():
             if name:  # Only add non-empty names
                 names_generated.append(name)
 
-        return jsonify(
-            {
-                "names": names_generated,
-                "count": len(names_generated),
-                "temperature": temperature,
-                "model": model_type,
-            }
-        )
+        return {
+            "names": names_generated,
+            "count": len(names_generated),
+            "temperature": temperature,
+            "model": model_type,
+        }
     except FileNotFoundError as e:
-        return jsonify({"error": str(e)}), 404
+        return {"error": str(e)}
     except Exception as e:
-        return jsonify({"error": f"Generation failed: {str(e)}"}), 500
+        return {"error": f"Generation failed: {str(e)}"}
 
 
-@app.route("/api/health", methods=["GET"])
-def health():
-    return jsonify({"status": "ok"})
+@app.get("/api/health")
+async def health():
+    """Health check endpoint"""
+    return {"status": "ok"}
 
 
 if __name__ == "__main__":
+    import uvicorn
+
     parser = argparse.ArgumentParser(description="Makemore API Server")
     parser.add_argument(
         "--production", action="store_true", help="Run in production mode"
@@ -226,6 +251,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Pre-load both models
+    print("=" * 60)
+    print("Makemore FastAPI Server with Rossetta")
+    print("=" * 60)
     print("Initializing models...")
     try:
         load_model("names")
@@ -240,10 +268,20 @@ if __name__ == "__main__":
         print(f"⚠ Drugs model not available: {e}")
 
     print("Models ready!")
+    print("=" * 60)
+    print(f"Server running at: http://localhost:{args.port}")
+    print(f"Session init endpoint: http://localhost:{args.port}/api/init-session")
+    print(f"API docs: http://localhost:{args.port}/docs")
+    print("=" * 60)
 
     if args.production:
-        print(f"Running in production mode on port {args.port}")
-        app.run(host="0.0.0.0", port=args.port, debug=False, threaded=True)
+        print("Running in production mode")
+        print("⚠️  For production, use:")
+        print(f"  uvicorn api:app --host 0.0.0.0 --port {args.port} --workers 4")
+        print("=" * 60)
+        uvicorn.run(app, host="0.0.0.0", port=args.port)
     else:
-        print(f"Running in development mode on port {args.port}")
-        app.run(host="0.0.0.0", port=args.port, debug=True)
+        print("Running in development mode")
+        print("⚠️  Do NOT use in production!")
+        print("=" * 60)
+        uvicorn.run(app, host="0.0.0.0", port=args.port, reload=True)
