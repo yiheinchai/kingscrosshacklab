@@ -25,6 +25,51 @@
       "sourceMapPathOverrides": {
         "webpack:///src/*": "${webRoot}/src/*"
       }
+    },
+    {
+      "name": "Debug Makemore API",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["api:app", "--host", "0.0.0.0", "--port", "5001", "--reload"],
+      "cwd": "${workspaceFolder}/projects/makemore/api",
+      "python": "${workspaceFolder}/projects/makemore/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "ROSSETTA_SECRET_KEY": "dev-rossetta-secret",
+        "SESSION_SECRET_KEY": "dev-session-secret"
+      }
+    },
+    {
+      "name": "Debug Makemore API (No Reload)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["api:app", "--host", "0.0.0.0", "--port", "5001"],
+      "cwd": "${workspaceFolder}/projects/makemore/api",
+      "python": "${workspaceFolder}/projects/makemore/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "ROSSETTA_SECRET_KEY": "dev-rossetta-secret",
+        "SESSION_SECRET_KEY": "dev-session-secret"
+      }
+    },
+    {
+      "name": "Debug Makemore API (Direct)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/projects/makemore/api/api.py",
+      "args": [],
+      "cwd": "${workspaceFolder}/projects/makemore/api",
+      "python": "${workspaceFolder}/projects/makemore/.venv/bin/python",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "ROSSETTA_SECRET_KEY": "dev-rossetta-secret",
+        "SESSION_SECRET_KEY": "dev-session-secret"
+      }
     }
   ]
 }
