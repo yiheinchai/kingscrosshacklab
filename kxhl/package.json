@@ -11,10 +11,10 @@
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name=kxhl"
   },
   "dependencies": {
-    "@rossetta-api/client": "^0.1.0",
     "@tanstack/react-router": "^1.139.10",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "rossetta-client": "^0.1.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
