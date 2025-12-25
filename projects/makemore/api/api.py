@@ -16,27 +16,13 @@ import torch.nn.functional as F
 import os
 import argparse
 import sys
+from rossetta_fastapi import RossettaMiddleware
 
-# Add parent directory to path to import rossetta_fastapi
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from rossetta_fastapi import setup_rossetta
 
 # Create FastAPI app
 app = FastAPI()
 
-# Setup Rossetta - this adds middleware AND creates /api/init-session endpoint
-setup_rossetta(
-    app,
-    secret=os.environ.get("ROSSETTA_SECRET_KEY", "dev-rossetta-secret"),
-    timestamp_window=300000,  # 5 minutes
-)
-
-# Add session middleware after Rossetta
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=os.environ.get("SESSION_SECRET_KEY", os.urandom(24).hex()),
-)
+app.add_middleware(RossettaMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
@@ -188,19 +174,8 @@ def generate_name(model_type="names", temperature=1.0):
 @app.post("/api/generate")
 async def generate(request: Request):
     """Generate names endpoint - supports both 'names' and 'drugs' models"""
-    # Handle both GET and POST requests
-    if request.method == "POST":
-        # For POST, access decrypted data
-        data = getattr(request.state, "decrypted_data", {})
-        if not data:
-            # If no decrypted data, try to parse JSON body
-            try:
-                data = await request.json()
-            except:
-                data = {}
-    else:
-        # For GET, use query parameters
-        data = dict(request.query_params)
+
+    data = await request.json() if request.method == "POST" else request.query_params
 
     count = int(data.get("count", 5))
     temperature = float(data.get("temperature", 1.0))
