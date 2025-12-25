@@ -1,6 +1,7 @@
+import { default as fetch } from "rossetta-client";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
-import RossettaClient from "@rossetta-api/client";
-const client = new RossettaClient(API_URL);
+
 export interface GenerateResponse {
   names: string[];
   count: number;
@@ -13,7 +14,8 @@ export async function generateNames(
   count: number,
   temperature: number
 ): Promise<GenerateResponse> {
-  const response = await client.post(`${API_URL}/api/generate`, {
+  const response = await fetch(`${API_URL}/api/generate`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
