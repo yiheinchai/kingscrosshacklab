@@ -1,0 +1,6 @@
+[submodule "projects/script-reader"]
+	path = projects/script-reader
+	url = https://github.com/merchyaqua/script-reader
+[submodule "projects/fiverr-pipeline"]
+	path = projects/fiverr-pipeline
+	url = https://github.com/merchyaqua/fiverr-pipeline
