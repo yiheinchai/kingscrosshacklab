@@ -640,18 +640,65 @@ async def get_chat_models():
 
 
 @app.get("/api/chat/messages/{model_id}")
-async def get_chat_messages(model_id: str):
-    """Get all messages for a specific chat model"""
+async def get_chat_messages(
+    model_id: str,
+    limit: int = 50,
+    before: Optional[str] = None,
+):
+    """
+    Get messages for a specific chat model with pagination.
+
+    Args:
+        model_id: The chat model ID
+        limit: Maximum number of messages to return (default 50)
+        before: Message ID to fetch messages before (for pagination)
+
+    Returns:
+        messages: List of messages (newest last within the batch)
+        hasMore: Whether there are more older messages to load
+        oldestMessageId: ID of the oldest message in this batch (use for next 'before' param)
+    """
     if model_id not in CHAT_MODELS:
         return {"error": f"Unknown model: {model_id}"}
 
-    messages = chat_messages.get(model_id, [])
+    all_messages = chat_messages.get(model_id, [])
     is_generating = chat_generating.get(model_id, False)
+
+    # If 'before' is specified, find that message and return messages before it
+    if before:
+        # Find index of the 'before' message
+        before_index = None
+        for i, msg in enumerate(all_messages):
+            if msg.get("id") == before:
+                before_index = i
+                break
+
+        if before_index is not None:
+            # Get 'limit' messages before this index
+            start_index = max(0, before_index - limit)
+            messages = all_messages[start_index:before_index]
+            has_more = start_index > 0
+        else:
+            # 'before' message not found, return latest
+            messages = (
+                all_messages[-limit:] if len(all_messages) > limit else all_messages
+            )
+            has_more = len(all_messages) > limit
+    else:
+        # No 'before' specified - return the latest messages
+        messages = all_messages[-limit:] if len(all_messages) > limit else all_messages
+        has_more = len(all_messages) > limit
+
+    # Get the oldest message ID in this batch for pagination
+    oldest_message_id = messages[0]["id"] if messages else None
 
     return {
         "model": CHAT_MODELS[model_id],
         "messages": messages,
         "isGenerating": is_generating,
+        "hasMore": has_more,
+        "oldestMessageId": oldest_message_id,
+        "totalCount": len(all_messages),
     }
 
 
