@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import React, { useState, useEffect, useRef } from "react";
 import MakemorePage from "./components/MakemorePage";
+import ChatPage from "./components/ChatPage";
 import logoImage from "./assets/logo.jpg";
 
 // Root Layout Component
@@ -20,7 +21,7 @@ function RootLayout() {
   const glitchText = (
     element: HTMLElement,
     targetText: string,
-    onComplete?: () => void
+    onComplete?: () => void,
   ) => {
     const glitchChars = "!<>-_\\/[]{}—=+*^?#@$%&";
     let iteration = 0;
@@ -610,9 +611,25 @@ function ProjectDetailPage() {
   );
 }
 
+// Chat Root Layout (minimal, no header/footer for WhatsApp-like experience)
+function ChatLayout() {
+  return <Outlet />;
+}
+
+// Check if we're on the chat subdomain
+function isChatSubdomain(): boolean {
+  const hostname = window.location.hostname;
+  return hostname.startsWith("chat.") || hostname === "chat.localhost";
+}
+
 // Create Routes
 const rootRoute = createRootRoute({
   component: RootLayout,
+});
+
+// Chat root route (for subdomain)
+const chatRootRoute = createRootRoute({
+  component: ChatLayout,
 });
 
 const indexRoute = createRoute({
@@ -633,22 +650,41 @@ const projectDetailRoute = createRoute({
   component: ProjectDetailPage,
 });
 
-const routeTree = rootRoute.addChildren([
+// Chat route for main domain (/chat path)
+const chatRoute = createRoute({
+  getParentRoute: () => chatRootRoute,
+  path: "/",
+  component: ChatPage,
+});
+
+// Also add chat as a path route under main domain
+const chatPathRoute = createRoute({
+  getParentRoute: () => chatRootRoute,
+  path: "/chat",
+  component: ChatPage,
+});
+
+const mainRouteTree = rootRoute.addChildren([
   indexRoute,
   projectsRoute,
   projectDetailRoute,
 ]);
 
-const router = createRouter({ routeTree });
+const chatRouteTree = chatRootRoute.addChildren([chatRoute, chatPathRoute]);
+
+const mainRouter = createRouter({ routeTree: mainRouteTree });
+const chatRouter = createRouter({ routeTree: chatRouteTree });
 
 // Type registration for TypeScript
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router;
+    router: typeof mainRouter;
   }
 }
 
 function App() {
+  // Use chat router for chat subdomain, main router otherwise
+  const router = isChatSubdomain() ? chatRouter : mainRouter;
   return <RouterProvider router={router} />;
 }
 
