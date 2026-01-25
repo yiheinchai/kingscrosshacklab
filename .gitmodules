@@ -4,3 +4,6 @@
 [submodule "projects/fiverr-pipeline"]
 	path = projects/fiverr-pipeline
 	url = https://github.com/merchyaqua/fiverr-pipeline
+[submodule "projects/mcqlient"]
+	path = projects/mcqlient
+	url = https://github.com/niv-l/mcqlient
