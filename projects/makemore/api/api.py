@@ -30,11 +30,6 @@ from rossetta_fastapi import RossettaMiddleware
 # Chat storage - persistent via JSON file
 CHAT_STORAGE_FILE = os.path.join(os.path.dirname(__file__), "chat_storage.json")
 
-# Configuration
-MAX_MESSAGES_PER_MODEL = 500  # Maximum messages to keep per model
-DEFAULT_FETCH_LIMIT = 50  # Default messages to return
-MAX_FETCH_LIMIT = 200  # Maximum messages allowed per request
-
 # Available chat models
 CHAT_MODELS = {
     "kxhl-1": {
@@ -48,89 +43,38 @@ CHAT_MODELS = {
 # In-memory chat storage (loaded from file on startup)
 chat_messages: Dict[str, List[dict]] = {}  # model_id -> list of messages
 chat_generating: Dict[str, bool] = {}  # model_id -> is_generating
-message_sequence: Dict[str, int] = (
-    {}
-)  # model_id -> last sequence number (monotonic counter)
 
 
 def load_chat_storage():
     """Load chat messages from persistent storage"""
-    global chat_messages, message_sequence
+    global chat_messages
     if os.path.exists(CHAT_STORAGE_FILE):
         try:
             with open(CHAT_STORAGE_FILE, "r") as f:
-                data = json.load(f)
-            # Handle both old format (just messages) and new format (with sequences)
-            if isinstance(data, dict) and "messages" in data:
-                chat_messages = data.get("messages", {})
-                message_sequence = data.get("sequences", {})
-            else:
-                # Old format - just messages dict
-                chat_messages = data
-                message_sequence = {}
+                chat_messages = json.load(f)
             print(
                 f"✓ Loaded chat storage with {sum(len(m) for m in chat_messages.values())} messages"
             )
         except Exception as e:
             print(f"⚠ Failed to load chat storage: {e}")
             chat_messages = {}
-            message_sequence = {}
     else:
         chat_messages = {}
-        message_sequence = {}
 
     # Initialize empty lists for models without messages
     for model_id in CHAT_MODELS:
         if model_id not in chat_messages:
             chat_messages[model_id] = []
-        if model_id not in message_sequence:
-            # Calculate sequence from existing messages
-            if chat_messages[model_id]:
-                max_seq = max(
-                    (m.get("seq", 0) for m in chat_messages[model_id]), default=0
-                )
-                message_sequence[model_id] = max_seq
-            else:
-                message_sequence[model_id] = 0
         chat_generating[model_id] = False
-
-        # Ensure all messages have sequence numbers (migration)
-        for i, msg in enumerate(chat_messages[model_id]):
-            if "seq" not in msg:
-                msg["seq"] = i + 1
-
-        # Enforce message limit
-        if len(chat_messages[model_id]) > MAX_MESSAGES_PER_MODEL:
-            chat_messages[model_id] = chat_messages[model_id][-MAX_MESSAGES_PER_MODEL:]
 
 
 def save_chat_storage():
     """Save chat messages to persistent storage"""
     try:
-        data = {"messages": chat_messages, "sequences": message_sequence}
         with open(CHAT_STORAGE_FILE, "w") as f:
-            json.dump(data, f, indent=2)
+            json.dump(chat_messages, f, indent=2)
     except Exception as e:
         print(f"⚠ Failed to save chat storage: {e}")
-
-
-def add_message(model_id: str, message: dict) -> dict:
-    """Add a message to a model's chat with proper sequencing and limit enforcement"""
-    global message_sequence
-
-    # Increment sequence number
-    message_sequence[model_id] = message_sequence.get(model_id, 0) + 1
-    message["seq"] = message_sequence[model_id]
-
-    # Add message
-    chat_messages[model_id].append(message)
-
-    # Enforce message limit
-    if len(chat_messages[model_id]) > MAX_MESSAGES_PER_MODEL:
-        chat_messages[model_id] = chat_messages[model_id][-MAX_MESSAGES_PER_MODEL:]
-
-    save_chat_storage()
-    return message
 
 
 def get_current_timestamp() -> str:
@@ -213,7 +157,8 @@ async def generate_chat_message_background(model_id: str):
         if message:
             # Use current timestamp instead of generated one
             message["timestamp"] = get_current_timestamp()
-            add_message(model_id, message)
+            chat_messages[model_id].append(message)
+            save_chat_storage()
             print(
                 f"[{model_id}] Generated message from {message['sender']}: {message['content'][:50]}..."
             )
@@ -695,63 +640,18 @@ async def get_chat_models():
 
 
 @app.get("/api/chat/messages/{model_id}")
-async def get_chat_messages(
-    model_id: str,
-    since_seq: int = 0,
-    limit: int = DEFAULT_FETCH_LIMIT,
-    before_seq: int = 0,
-):
-    """
-    Get messages for a specific chat model with pagination support.
-
-    Query params:
-    - since_seq: Only return messages with seq > since_seq (for delta updates)
-    - limit: Maximum number of messages to return (default 50, max 200)
-    - before_seq: Get messages before this sequence (for loading older messages)
-
-    Response includes:
-    - messages: Array of messages
-    - latestSeq: The highest sequence number (for tracking new messages)
-    - totalCount: Total messages in the chat
-    - hasMore: Whether there are older messages to load
-    """
+async def get_chat_messages(model_id: str):
+    """Get all messages for a specific chat model"""
     if model_id not in CHAT_MODELS:
         return {"error": f"Unknown model: {model_id}"}
 
-    all_messages = chat_messages.get(model_id, [])
+    messages = chat_messages.get(model_id, [])
     is_generating = chat_generating.get(model_id, False)
-    latest_seq = message_sequence.get(model_id, 0)
-    total_count = len(all_messages)
-
-    # Clamp limit
-    limit = min(max(1, limit), MAX_FETCH_LIMIT)
-
-    # Filter messages based on query params
-    if since_seq > 0:
-        # Delta update: only messages newer than since_seq
-        filtered = [m for m in all_messages if m.get("seq", 0) > since_seq]
-        # For delta updates, return all new messages (up to limit)
-        result_messages = filtered[-limit:] if len(filtered) > limit else filtered
-        has_more = False  # Not relevant for delta updates
-    elif before_seq > 0:
-        # Loading older messages: get messages before before_seq
-        filtered = [m for m in all_messages if m.get("seq", 0) < before_seq]
-        result_messages = filtered[-limit:] if len(filtered) > limit else filtered
-        has_more = len(filtered) > limit
-    else:
-        # Initial load: get most recent messages
-        result_messages = (
-            all_messages[-limit:] if len(all_messages) > limit else all_messages
-        )
-        has_more = len(all_messages) > limit
 
     return {
         "model": CHAT_MODELS[model_id],
-        "messages": result_messages,
+        "messages": messages,
         "isGenerating": is_generating,
-        "latestSeq": latest_seq,
-        "totalCount": total_count,
-        "hasMore": has_more,
     }
 
 
@@ -778,8 +678,8 @@ async def send_chat_message(model_id: str, request: Request):
         "createdAt": datetime.now().isoformat(),
     }
 
-    # Add message with proper sequencing
-    message = add_message(model_id, message)
+    chat_messages[model_id].append(message)
+    save_chat_storage()
 
     # Trigger immediate AI response
     asyncio.create_task(generate_chat_message_background(model_id))
@@ -787,21 +687,12 @@ async def send_chat_message(model_id: str, request: Request):
     return {
         "success": True,
         "message": message,
-        "latestSeq": message_sequence.get(model_id, 0),
     }
 
 
 @app.get("/api/chat/status/{model_id}")
 async def get_chat_status(model_id: str):
-    """
-    Lightweight status check endpoint for polling.
-    Returns only metadata, not full messages - use this for frequent polling.
-
-    Response:
-    - latestSeq: Current highest sequence number
-    - messageCount: Total messages
-    - isGenerating: Whether AI is generating a response
-    """
+    """Get the current status of a chat (is generating, message count)"""
     if model_id not in CHAT_MODELS:
         return {"error": f"Unknown model: {model_id}"}
 
@@ -809,7 +700,6 @@ async def get_chat_status(model_id: str):
         "model_id": model_id,
         "isGenerating": chat_generating.get(model_id, False),
         "messageCount": len(chat_messages.get(model_id, [])),
-        "latestSeq": message_sequence.get(model_id, 0),
     }
 
 

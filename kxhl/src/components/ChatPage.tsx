@@ -6,7 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 interface Message {
   id: string;
-  seq: number;
   timestamp: string;
   sender: string;
   content: string;
@@ -38,13 +37,10 @@ export default function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [showNewMessagesButton, setShowNewMessagesButton] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const previousMessageCountRef = useRef(0);
-  const latestSeqRef = useRef(0); // Track latest sequence number for delta fetching
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -148,15 +144,12 @@ export default function ChatPage() {
     fetchModels();
   }, []);
 
-  // Fetch messages from server (delta or full)
-  const fetchMessages = async (deltaOnly: boolean = false) => {
+  // Fetch messages from server
+  const fetchMessages = async () => {
     try {
-      const url =
-        deltaOnly && latestSeqRef.current > 0
-          ? `${API_URL}/api/chat/messages/${selectedModel}?since_seq=${latestSeqRef.current}`
-          : `${API_URL}/api/chat/messages/${selectedModel}`;
-
-      const response = await fetch(url);
+      const response = await fetch(
+        `${API_URL}/api/chat/messages/${selectedModel}`,
+      );
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
@@ -167,27 +160,7 @@ export default function ChatPage() {
         return;
       }
 
-      // Update latest sequence number
-      if (data.latestSeq) {
-        latestSeqRef.current = data.latestSeq;
-      }
-
-      if (deltaOnly && data.messages?.length > 0) {
-        // Delta update: append new messages
-        setMessages((prev) => {
-          // Filter out any messages we already have (by id)
-          const existingIds = new Set(prev.map((m) => m.id));
-          const newMessages = data.messages.filter(
-            (m: Message) => !existingIds.has(m.id),
-          );
-          return [...prev, ...newMessages];
-        });
-      } else if (!deltaOnly) {
-        // Full fetch: replace all messages
-        setMessages(data.messages || []);
-        setHasMore(data.hasMore || false);
-      }
-
+      setMessages(data.messages || []);
       setIsGenerating(data.isGenerating || false);
       setError(null);
     } catch (err) {
@@ -196,78 +169,37 @@ export default function ChatPage() {
     }
   };
 
-  // Lightweight status check for polling
-  const checkStatus = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/chat/status/${selectedModel}`,
-      );
-      if (!response.ok) return;
-
-      const data = await response.json();
-      if (data.error) return;
-
-      setIsGenerating(data.isGenerating || false);
-
-      // If there are new messages, fetch them
-      if (data.latestSeq > latestSeqRef.current) {
-        await fetchMessages(true); // Delta fetch only
-      }
-    } catch (err) {
-      console.error("Status check failed:", err);
-    }
-  };
-
-  // Load older messages
-  const loadMoreMessages = async () => {
-    if (isLoadingMore || !hasMore) return;
-
-    setIsLoadingMore(true);
-    const container = messagesContainerRef.current;
-    const scrollHeightBefore = container?.scrollHeight || 0;
-
-    try {
-      const oldestSeq =
-        messages.length > 0 ? Math.min(...messages.map((m) => m.seq || 0)) : 0;
-      const response = await fetch(
-        `${API_URL}/api/chat/messages/${selectedModel}?before_seq=${oldestSeq}&limit=50`,
-      );
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-
-      const data = await response.json();
-      if (data.error) return;
-
-      if (data.messages?.length > 0) {
-        setMessages((prev) => [...data.messages, ...prev]);
-        setHasMore(data.hasMore || false);
-
-        // Maintain scroll position after loading older messages
-        requestAnimationFrame(() => {
-          if (container) {
-            const scrollHeightAfter = container.scrollHeight;
-            container.scrollTop = scrollHeightAfter - scrollHeightBefore;
-          }
-        });
-      }
-    } catch (err) {
-      console.error("Failed to load more messages:", err);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
-
   // Initial fetch and polling setup
   useEffect(() => {
-    // Reset state when model changes
-    latestSeqRef.current = 0;
-    setMessages([]);
-    setHasMore(false);
+    // Fetch immediately
+    const doFetch = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/chat/messages/${selectedModel}`,
+        );
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        const data = await response.json();
 
-    // Full fetch on initial load
-    fetchMessages(false);
+        if (data.error) {
+          setError(data.error);
+          return;
+        }
 
-    // Set up lightweight polling every 3 seconds
-    pollIntervalRef.current = setInterval(checkStatus, 3000);
+        setMessages(data.messages || []);
+        setIsGenerating(data.isGenerating || false);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+        setError("Failed to connect to server");
+      }
+    };
+
+    doFetch();
+
+    // Set up polling every 5 seconds
+    pollIntervalRef.current = setInterval(doFetch, 5000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -311,10 +243,6 @@ export default function ChatPage() {
       // Add the message locally for immediate feedback
       if (data.message) {
         setMessages((prev) => [...prev, data.message]);
-        // Update latest seq to avoid re-fetching this message
-        if (data.latestSeq) {
-          latestSeqRef.current = data.latestSeq;
-        }
       }
 
       setInputText("");
@@ -323,8 +251,8 @@ export default function ChatPage() {
       // Scroll to bottom when user sends a message
       setTimeout(() => scrollToBottom("smooth"), 100);
 
-      // Check for AI response after a short delay (using delta fetch)
-      setTimeout(() => fetchMessages(true), 1000);
+      // Refresh messages to get the AI response
+      setTimeout(fetchMessages, 1000);
     } catch (err) {
       console.error("Failed to send message:", err);
       setError("Failed to send message");
@@ -449,17 +377,6 @@ export default function ChatPage() {
         )}
 
         <div className="messages-wrapper">
-          {/* Load More Button */}
-          {hasMore && (
-            <button
-              className="load-more-button"
-              onClick={loadMoreMessages}
-              disabled={isLoadingMore}
-            >
-              {isLoadingMore ? "Loading..." : "Load older messages"}
-            </button>
-          )}
-
           {/* Welcome message */}
           <div className="system-message">
             <span>🤖 AI-Generated KXHL Chat</span>
