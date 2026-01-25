@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import logoImage from "../assets/logo.jpg";
 import "../styles/chat.css";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const PAGE_SIZE = 50; // Number of messages to fetch per page
 
 interface Message {
   id: string;
@@ -37,10 +38,16 @@ export default function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const [showNewMessagesButton, setShowNewMessagesButton] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [oldestMessageId, setOldestMessageId] = useState<string | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesTopRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const previousMessageCountRef = useRef(0);
+  const isLoadingMoreRef = useRef(false);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -106,18 +113,28 @@ export default function ChatPage() {
     };
   }, []);
 
-  // Track scroll position
+  // Track scroll position and trigger infinite scroll
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
       checkIfNearBottom();
+
+      // Infinite scroll: load more when near top
+      if (
+        container.scrollTop < 100 &&
+        hasMore &&
+        !isLoadingMoreRef.current &&
+        initialLoadDone
+      ) {
+        loadMoreMessages();
+      }
     };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [hasMore, initialLoadDone]);
 
   // Load saved username from localStorage
   useEffect(() => {
@@ -144,38 +161,12 @@ export default function ChatPage() {
     fetchModels();
   }, []);
 
-  // Fetch messages from server
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/chat/messages/${selectedModel}`,
-      );
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      const data = await response.json();
-
-      if (data.error) {
-        setError(data.error);
-        return;
-      }
-
-      setMessages(data.messages || []);
-      setIsGenerating(data.isGenerating || false);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch messages:", err);
-      setError("Failed to connect to server");
-    }
-  };
-
-  // Initial fetch and polling setup
-  useEffect(() => {
-    // Fetch immediately
-    const doFetch = async () => {
+  // Fetch latest messages (initial load or polling for new messages)
+  const fetchMessages = useCallback(
+    async (isPolling = false) => {
       try {
         const response = await fetch(
-          `${API_URL}/api/chat/messages/${selectedModel}`,
+          `${API_URL}/api/chat/messages/${selectedModel}?limit=${PAGE_SIZE}`,
         );
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
@@ -187,19 +178,103 @@ export default function ChatPage() {
           return;
         }
 
-        setMessages(data.messages || []);
+        const newMessages = data.messages || [];
+
+        if (isPolling && messages.length > 0) {
+          // When polling, only add truly new messages (not already in our list)
+          const existingIds = new Set(messages.map((m) => m.id));
+          const reallyNewMessages = newMessages.filter(
+            (m: Message) => !existingIds.has(m.id),
+          );
+
+          if (reallyNewMessages.length > 0) {
+            setMessages((prev) => [...prev, ...reallyNewMessages]);
+          }
+        } else {
+          // Initial load - replace all messages
+          setMessages(newMessages);
+          setOldestMessageId(data.oldestMessageId || null);
+          setHasMore(data.hasMore || false);
+          setInitialLoadDone(true);
+        }
+
         setIsGenerating(data.isGenerating || false);
         setError(null);
       } catch (err) {
         console.error("Failed to fetch messages:", err);
         setError("Failed to connect to server");
       }
-    };
+    },
+    [selectedModel, messages],
+  );
 
-    doFetch();
+  // Load older messages (infinite scroll)
+  const loadMoreMessages = useCallback(async () => {
+    if (isLoadingMoreRef.current || !hasMore || !oldestMessageId) return;
 
-    // Set up polling every 5 seconds
-    pollIntervalRef.current = setInterval(doFetch, 5000);
+    isLoadingMoreRef.current = true;
+    setIsLoadingMore(true);
+
+    // Save scroll position before loading
+    const container = messagesContainerRef.current;
+    const scrollHeightBefore = container?.scrollHeight || 0;
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/chat/messages/${selectedModel}?limit=${PAGE_SIZE}&before=${oldestMessageId}`,
+      );
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+
+      const olderMessages = data.messages || [];
+
+      if (olderMessages.length > 0) {
+        // Prepend older messages
+        setMessages((prev) => [...olderMessages, ...prev]);
+        setOldestMessageId(data.oldestMessageId || null);
+        setHasMore(data.hasMore || false);
+
+        // Restore scroll position after messages are prepended
+        requestAnimationFrame(() => {
+          if (container) {
+            const scrollHeightAfter = container.scrollHeight;
+            container.scrollTop = scrollHeightAfter - scrollHeightBefore;
+          }
+        });
+      } else {
+        setHasMore(false);
+      }
+
+      setError(null);
+    } catch (err) {
+      console.error("Failed to load more messages:", err);
+      setError("Failed to load more messages");
+    } finally {
+      isLoadingMoreRef.current = false;
+      setIsLoadingMore(false);
+    }
+  }, [selectedModel, hasMore, oldestMessageId]);
+
+  // Initial fetch and polling setup
+  useEffect(() => {
+    // Reset state when model changes
+    setMessages([]);
+    setHasMore(false);
+    setOldestMessageId(null);
+    setInitialLoadDone(false);
+
+    // Initial fetch (not polling)
+    fetchMessages(false);
+
+    // Set up polling every 5 seconds for new messages
+    pollIntervalRef.current = setInterval(() => fetchMessages(true), 5000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -377,6 +452,23 @@ export default function ChatPage() {
         )}
 
         <div className="messages-wrapper">
+          {/* Loading more indicator */}
+          {isLoadingMore && (
+            <div className="loading-more-indicator">
+              <div className="loading-spinner"></div>
+              <span>Loading older messages...</span>
+            </div>
+          )}
+
+          {/* "Load more" prompt when there are more messages */}
+          {hasMore && !isLoadingMore && (
+            <div className="load-more-prompt" ref={messagesTopRef}>
+              <button onClick={loadMoreMessages} className="load-more-btn">
+                ↑ Load older messages
+              </button>
+            </div>
+          )}
+
           {/* Welcome message */}
           <div className="system-message">
             <span>🤖 AI-Generated KXHL Chat</span>

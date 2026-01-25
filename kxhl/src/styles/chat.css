@@ -224,6 +224,60 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Loading More Indicator */
+.loading-more-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  color: #8696a0;
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #2a3942;
+  border-top-color: #00a884;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Load More Button */
+.load-more-prompt {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+}
+
+.load-more-btn {
+  background-color: rgba(217, 142, 115, 0.15);
+  color: #d98e73;
+  border: 1px solid rgba(217, 142, 115, 0.3);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-more-btn:hover {
+  background-color: rgba(217, 142, 115, 0.25);
+  border-color: rgba(217, 142, 115, 0.5);
+}
+
+.load-more-btn:active {
+  transform: scale(0.95);
+}
+
 /* New Messages Button */
 .new-messages-button {
   position: sticky;
