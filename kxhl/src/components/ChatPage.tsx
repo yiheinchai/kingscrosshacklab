@@ -35,16 +35,89 @@ export default function ChatPage() {
   const [selectedModel, setSelectedModel] = useState("kxhl-1");
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [showNewMessagesButton, setShowNewMessagesButton] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const previousMessageCountRef = useRef(0);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
+  // Check if user is near bottom of chat
+  const checkIfNearBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return true;
+
+    const threshold = 150; // pixels from bottom
+    const isNear =
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      threshold;
+    setIsNearBottom(isNear);
+    return isNear;
+  };
+
+  // Auto-scroll only if user is near bottom
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const newMessageCount = messages.length;
+    const hadNewMessages = newMessageCount > previousMessageCountRef.current;
+
+    if (hadNewMessages) {
+      if (isNearBottom) {
+        // User is at bottom, auto-scroll
+        scrollToBottom("smooth");
+        setShowNewMessagesButton(false);
+      } else {
+        // User is viewing past messages, show button
+        setShowNewMessagesButton(true);
+      }
+    }
+
+    previousMessageCountRef.current = newMessageCount;
+  }, [messages, isNearBottom]);
+
+  // Prevent iOS pull-to-refresh
+  useEffect(() => {
+    const preventPullToRefresh = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      const messagesContainer = document.querySelector(".chat-messages");
+
+      // Only prevent if we're at the top of the messages container
+      if (
+        messagesContainer &&
+        messagesContainer.scrollTop === 0 &&
+        target.closest(".chat-messages")
+      ) {
+        // If scrolling up, prevent default
+        if (e.touches.length === 1) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener("touchmove", preventPullToRefresh, {
+      passive: false,
+    });
+
+    return () => {
+      document.removeEventListener("touchmove", preventPullToRefresh);
+    };
+  }, []);
+
+  // Track scroll position
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      checkIfNearBottom();
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Load saved username from localStorage
   useEffect(() => {
@@ -175,6 +248,9 @@ export default function ChatPage() {
       setInputText("");
       setError(null);
 
+      // Scroll to bottom when user sends a message
+      setTimeout(() => scrollToBottom("smooth"), 100);
+
       // Refresh messages to get the AI response
       setTimeout(fetchMessages, 1000);
     } catch (err) {
@@ -280,9 +356,26 @@ export default function ChatPage() {
 
       {/* Messages Container */}
       <div
+        ref={messagesContainerRef}
         className="chat-messages"
         onClick={() => setShowModelSelector(false)}
       >
+        {/* New Messages Button */}
+        {showNewMessagesButton && (
+          <button
+            className="new-messages-button"
+            onClick={() => {
+              scrollToBottom("smooth");
+              setShowNewMessagesButton(false);
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M7 10l5 5 5-5z" />
+            </svg>
+            New messages
+          </button>
+        )}
+
         <div className="messages-wrapper">
           {/* Welcome message */}
           <div className="system-message">

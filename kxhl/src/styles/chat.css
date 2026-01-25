@@ -5,6 +5,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height for mobile */
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -17,6 +18,10 @@
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden; /* Prevent body scroll */
+  /* iOS safe area support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Header */
@@ -126,9 +131,13 @@
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overscroll-behavior: contain; /* Prevent pull-to-refresh */
   padding: 8px 16px;
   background-color: #0b141a;
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23182229' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  position: relative;
 }
 
 .messages-wrapper {
@@ -215,6 +224,64 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* New Messages Button */
+.new-messages-button {
+  position: sticky;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background-color: #00a884;
+  color: #111b21;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 auto 8px;
+  transition: all 0.2s;
+  animation: slideDown 0.3s ease;
+}
+
+.new-messages-button:hover {
+  background-color: #06cf9c;
+  transform: translateX(-50%) scale(1.05);
+}
+
+.new-messages-button:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+.new-messages-button svg {
+  animation: bounce 0.6s infinite;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
 /* Typing Indicator */
 .typing-indicator {
   display: flex;
@@ -267,7 +334,10 @@
   gap: 8px;
   padding: 8px 12px;
   background-color: #1f2c34;
-  border-top: 1px solid #2a3942;
+  border-top: 1px solid #2a3942; /* iOS safe area support for bottom */
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 10;
 }
 
 .input-icon {
@@ -386,6 +456,8 @@
   right: 0;
   background: linear-gradient(to top, #1f2c34 80%, transparent);
   padding: 24px 16px 32px;
+  /* iOS safe area support */
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
   z-index: 100;
 }
 
@@ -593,4 +665,44 @@
 .error-message span {
   font-size: 13px;
   color: #ef4444;
+}
+
+/* iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific */
+
+  /* Prevent zoom on input focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Fix for iOS Safari bottom bar */
+  .chat-app {
+    min-height: -webkit-fill-available;
+  }
+
+  /* Ensure scrolling works properly */
+  .chat-messages {
+    position: relative;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Additional iOS touch improvements */
+* {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+button {
+  -webkit-tap-highlight-color: rgba(0, 168, 132, 0.1);
 }
