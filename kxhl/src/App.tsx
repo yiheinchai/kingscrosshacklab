@@ -480,11 +480,12 @@ function HomePage() {
 // Projects data
 const projects = [
   {
-    id: "hameem",
-    name: "Hameem",
+    id: "chat",
+    name: "KXHL Chat",
     description:
-      "A platform helping teams navigate conflict and communicate better",
-    tags: ["Communication", "Teams", "Wellbeing"],
+      "AI-generated WhatsApp-style chat simulating Kings Cross Hack Lab conversations",
+    tags: ["AI", "Chat", "Community"],
+    subdomain: "chat.kxhacklab.com",
   },
   {
     id: "makemore",
@@ -506,8 +507,21 @@ const projects = [
 function ProjectsPage() {
   return (
     <section className="projects-page">
-      <div className="container">
-        <div className="section-header">
+      <div
+        className="container"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div
+          className="section-header"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <h2>Our Projects</h2>
           <p>
             Passion projects from our community — built for fun, learning, and
@@ -523,7 +537,20 @@ function ProjectsPage() {
               params={{ projectId: project.id as string }}
               className="project-card glass-card"
             >
-              <h3>{project.name}</h3>
+              <h3>
+                {project.name}
+                {(project as any).subdomain && (
+                  <span
+                    style={{
+                      marginLeft: "8px",
+                      fontSize: "0.7em",
+                      opacity: 0.6,
+                    }}
+                  >
+                    ↗
+                  </span>
+                )}
+              </h3>
               <p>{project.description}</p>
               <div className="project-tags">
                 {project.tags.map((tag) => (
@@ -532,6 +559,13 @@ function ProjectsPage() {
                   </span>
                 ))}
               </div>
+              {(project as any).subdomain && (
+                <div
+                  style={{ fontSize: "0.85em", marginTop: "8px", opacity: 0.7 }}
+                >
+                  🔗 {(project as any).subdomain}
+                </div>
+              )}
               <span className="project-arrow">→</span>
             </Link>
           ))}
@@ -549,6 +583,60 @@ function ProjectDetailPage() {
   // Use dedicated page for makemore
   if (projectId === "makemore") {
     return <MakemorePage />;
+  }
+
+  // Redirect to subdomain for chat
+  if (projectId === "chat") {
+    // Check if we're on the chat subdomain
+    if (
+      window.location.hostname === "chat.kxhacklab.com" ||
+      window.location.hostname === "localhost"
+    ) {
+      // Already on chat subdomain or localhost, show placeholder
+      return (
+        <section className="project-detail">
+          <div className="container">
+            <Link to="/projects" className="back-link">
+              ← Back to Projects
+            </Link>
+            <div className="project-header">
+              <h1>{project?.name}</h1>
+              <p className="project-description">{project?.description}</p>
+              <div className="project-tags">
+                {project?.tags.map((tag) => (
+                  <span key={tag} className="project-tag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="project-content-wrapper">
+              <div className="project-content">
+                <p>
+                  Experience the KXHL Chat at{" "}
+                  <a
+                    href="https://chat.kxhacklab.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    chat.kxhacklab.com
+                  </a>
+                </p>
+                <p>
+                  An AI-powered chat interface that simulates conversations from
+                  the Kings Cross Hack Lab WhatsApp group. Built with a 3M
+                  parameter transformer model trained on real chat logs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    } else {
+      // Redirect to chat subdomain
+      window.location.href = "https://chat.kxhacklab.com";
+      return null;
+    }
   }
 
   if (!project) {
@@ -569,6 +657,23 @@ function ProjectDetailPage() {
 
   // Project-specific content
   const projectContent: Record<string, React.ReactNode> = {
+    chat: (
+      <div className="project-content">
+        <p>
+          AI-generated WhatsApp-style chat simulating Kings Cross Hack Lab
+          conversations. Built with a 3M parameter transformer model.
+        </p>
+        <p>
+          <a
+            href="https://chat.kxhacklab.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Visit chat.kxhacklab.com →
+          </a>
+        </p>
+      </div>
+    ),
     hameem: (
       <div className="project-content">
         <p>Conflict resolution platform for teams.</p>
