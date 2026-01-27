@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import logoImage from "../assets/logo.jpg";
 import "../styles/chat.css";
+import { default as fetch } from "rossetta-client";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
@@ -458,7 +459,8 @@ export default function ChatPage() {
             placeholder={
               isUsernameSet ? "Type a message..." : "Set username first..."
             }
-            disabled={!isUsernameSet || isSending}
+            // disabled={!isUsernameSet || isSending}
+            disabled
           />
           <button className="emoji-btn" title="Emoji">
             <svg viewBox="0 0 24 24" fill="currentColor">
