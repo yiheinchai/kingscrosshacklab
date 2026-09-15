@@ -10,6 +10,13 @@ import React, { useState, useEffect, useRef } from "react";
 import MakemorePage from "./components/MakemorePage";
 import ChatPage from "./components/ChatPage";
 import logoImage from "./assets/logo.jpg";
+import {
+  CANONICAL_CHAT_ORIGIN,
+  canonicalChatUrl,
+  isLocalHostname,
+  shouldRedirectChatToCanonical,
+  shouldServeChatApp,
+} from "./chatHost";
 
 // Root Layout Component
 function RootLayout() {
@@ -477,15 +484,23 @@ function HomePage() {
   );
 }
 
+type Project = {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  href?: string;
+};
+
 // Projects data
-const projects = [
+const projects: Project[] = [
   {
     id: "chat",
     name: "KXHL Chat",
     description:
       "AI-generated WhatsApp-style chat simulating Kings Cross Hack Lab conversations",
     tags: ["AI", "Chat", "Community"],
-    subdomain: "chat.kxhacklab.com",
+    href: `${CANONICAL_CHAT_ORIGIN}/`,
   },
   {
     id: "makemore",
@@ -530,45 +545,69 @@ function ProjectsPage() {
         </div>
 
         <div className="projects-grid">
-          {projects.map((project) => (
-            <Link
-              key={project.id}
-              to="/projects/$projectId"
-              params={{ projectId: project.id as string }}
-              className="project-card glass-card"
-            >
-              <h3>
-                {project.name}
-                {(project as any).subdomain && (
-                  <span
+          {projects.map((project) => {
+            const card = (
+              <>
+                <h3>
+                  {project.name}
+                  {project.href && (
+                    <span
+                      style={{
+                        marginLeft: "8px",
+                        fontSize: "0.7em",
+                        opacity: 0.6,
+                      }}
+                    >
+                      ↗
+                    </span>
+                  )}
+                </h3>
+                <p>{project.description}</p>
+                <div className="project-tags">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="project-tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                {project.href && (
+                  <div
                     style={{
-                      marginLeft: "8px",
-                      fontSize: "0.7em",
-                      opacity: 0.6,
+                      fontSize: "0.85em",
+                      marginTop: "8px",
+                      opacity: 0.7,
                     }}
                   >
-                    ↗
-                  </span>
+                    🔗 {new URL(project.href).host}
+                  </div>
                 )}
-              </h3>
-              <p>{project.description}</p>
-              <div className="project-tags">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="project-tag">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              {(project as any).subdomain && (
-                <div
-                  style={{ fontSize: "0.85em", marginTop: "8px", opacity: 0.7 }}
+                <span className="project-arrow">→</span>
+              </>
+            );
+
+            if (project.href) {
+              return (
+                <a
+                  key={project.id}
+                  href={project.href}
+                  className="project-card glass-card"
                 >
-                  🔗 {(project as any).subdomain}
-                </div>
-              )}
-              <span className="project-arrow">→</span>
-            </Link>
-          ))}
+                  {card}
+                </a>
+              );
+            }
+
+            return (
+              <Link
+                key={project.id}
+                to="/projects/$projectId"
+                params={{ projectId: project.id }}
+                className="project-card glass-card"
+              >
+                {card}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -585,58 +624,9 @@ function ProjectDetailPage() {
     return <MakemorePage />;
   }
 
-  // Redirect to subdomain for chat
+  // Chat always lives on the canonical subdomain.
   if (projectId === "chat") {
-    // Check if we're on the chat subdomain
-    if (
-      window.location.hostname === "chat.kxhacklab.com" ||
-      window.location.hostname === "localhost"
-    ) {
-      // Already on chat subdomain or localhost, show placeholder
-      return (
-        <section className="project-detail">
-          <div className="container">
-            <Link to="/projects" className="back-link">
-              ← Back to Projects
-            </Link>
-            <div className="project-header">
-              <h1>{project?.name}</h1>
-              <p className="project-description">{project?.description}</p>
-              <div className="project-tags">
-                {project?.tags.map((tag) => (
-                  <span key={tag} className="project-tag">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="project-content-wrapper">
-              <div className="project-content">
-                <p>
-                  Experience the KXHL Chat at{" "}
-                  <a
-                    href="https://chat.kxhacklab.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    chat.kxhacklab.com
-                  </a>
-                </p>
-                <p>
-                  An AI-powered chat interface that simulates conversations from
-                  the Kings Cross Hack Lab WhatsApp group. Built with a 3M
-                  parameter transformer model trained on real chat logs.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    } else {
-      // Redirect to chat subdomain
-      window.location.href = "https://chat.kxhacklab.com";
-      return null;
-    }
+    return <RedirectToCanonicalChat />;
   }
 
   if (!project) {
@@ -657,23 +647,6 @@ function ProjectDetailPage() {
 
   // Project-specific content
   const projectContent: Record<string, React.ReactNode> = {
-    chat: (
-      <div className="project-content">
-        <p>
-          AI-generated WhatsApp-style chat simulating Kings Cross Hack Lab
-          conversations. Built with a 3M parameter transformer model.
-        </p>
-        <p>
-          <a
-            href="https://chat.kxhacklab.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Visit chat.kxhacklab.com →
-          </a>
-        </p>
-      </div>
-    ),
     hameem: (
       <div className="project-content">
         <p>Conflict resolution platform for teams.</p>
@@ -716,15 +689,54 @@ function ProjectDetailPage() {
   );
 }
 
-// Chat Root Layout (minimal, no header/footer for WhatsApp-like experience)
-function ChatLayout() {
-  return <Outlet />;
+function RedirectToCanonicalChat() {
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    if (isLocalHostname(hostname)) {
+      const localChat = `/chat${window.location.search}${window.location.hash}`;
+      if (window.location.pathname !== "/chat") {
+        window.location.replace(localChat);
+      }
+      return;
+    }
+    window.location.replace(
+      canonicalChatUrl(window.location.search, window.location.hash),
+    );
+  }, []);
+
+  if (
+    isLocalHostname(window.location.hostname) &&
+    window.location.pathname === "/chat"
+  ) {
+    return <ChatPage />;
+  }
+
+  return null;
 }
 
-// Check if we're on the chat subdomain
-function isChatSubdomain(): boolean {
-  const hostname = window.location.hostname;
-  return hostname.startsWith("chat.") || hostname === "chat.localhost";
+// Chat Root Layout (minimal, no header/footer for WhatsApp-like experience)
+function ChatLayout() {
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    if (shouldRedirectChatToCanonical(hostname)) {
+      window.location.replace(
+        canonicalChatUrl(window.location.search, window.location.hash),
+      );
+      return;
+    }
+
+    let canonical = document.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = `${CANONICAL_CHAT_ORIGIN}/`;
+  }, []);
+
+  return <Outlet />;
 }
 
 // Create Routes
@@ -755,24 +767,31 @@ const projectDetailRoute = createRoute({
   component: ProjectDetailPage,
 });
 
-// Chat route for main domain (/chat path)
 const chatRoute = createRoute({
   getParentRoute: () => chatRootRoute,
   path: "/",
   component: ChatPage,
 });
 
-// Also add chat as a path route under main domain
+// Local `/chat` and any leftover chat.kxhacklab.com/chat URLs.
 const chatPathRoute = createRoute({
   getParentRoute: () => chatRootRoute,
   path: "/chat",
   component: ChatPage,
 });
 
+// Production: kxhacklab.com/chat (and client-side navigations) go to the subdomain.
+const mainChatRedirectRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/chat",
+  component: RedirectToCanonicalChat,
+});
+
 const mainRouteTree = rootRoute.addChildren([
   indexRoute,
   projectsRoute,
   projectDetailRoute,
+  mainChatRedirectRoute,
 ]);
 
 const chatRouteTree = chatRootRoute.addChildren([chatRoute, chatPathRoute]);
@@ -788,8 +807,12 @@ declare module "@tanstack/react-router" {
 }
 
 function App() {
-  // Use chat router for chat subdomain, main router otherwise
-  const router = isChatSubdomain() ? chatRouter : mainRouter;
+  const router = shouldServeChatApp(
+    window.location.hostname,
+    window.location.pathname,
+  )
+    ? chatRouter
+    : mainRouter;
   return <RouterProvider router={router} />;
 }
 
