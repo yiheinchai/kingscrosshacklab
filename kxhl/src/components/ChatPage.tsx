@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import logoImage from "../assets/logo.jpg";
 import "../styles/chat.css";
-import { default as fetch } from "rossetta-client";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const CHAT_API_URL = (import.meta.env.VITE_CHAT_API_URL ?? "").replace(
+  /\/$/,
+  "",
+);
 
 interface Message {
   id: string;
@@ -133,7 +134,7 @@ export default function ChatPage() {
   useEffect(() => {
     async function fetchModels() {
       try {
-        const response = await fetch(`${API_URL}/api/chat/models`);
+        const response = await fetch(`${CHAT_API_URL}/api/chat/models`);
         if (response.ok) {
           const data = await response.json();
           setModels(data.models || []);
@@ -145,11 +146,11 @@ export default function ChatPage() {
     fetchModels();
   }, []);
 
-  // Fetch messages from server
-  const fetchMessages = async () => {
+  const fetchMessages = async (opts: { retries?: number } = {}) => {
+    const retries = opts.retries ?? 0;
     try {
       const response = await fetch(
-        `${API_URL}/api/chat/messages/${selectedModel}`,
+        `${CHAT_API_URL}/api/chat/messages/${selectedModel}`,
       );
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -166,41 +167,21 @@ export default function ChatPage() {
       setError(null);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
+      if (retries > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        return fetchMessages({ retries: retries - 1 });
+      }
       setError("Failed to connect to server");
     }
   };
 
   // Initial fetch and polling setup
   useEffect(() => {
-    // Fetch immediately
-    const doFetch = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/api/chat/messages/${selectedModel}`,
-        );
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        const data = await response.json();
+    fetchMessages({ retries: 4 });
 
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-
-        setMessages(data.messages || []);
-        setIsGenerating(data.isGenerating || false);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch messages:", err);
-        setError("Failed to connect to server");
-      }
-    };
-
-    doFetch();
-
-    // Set up polling every 5 seconds
-    pollIntervalRef.current = setInterval(doFetch, 5000);
+    pollIntervalRef.current = setInterval(() => {
+      fetchMessages();
+    }, 5000);
 
     return () => {
       if (pollIntervalRef.current) {
@@ -217,7 +198,7 @@ export default function ChatPage() {
 
     try {
       const response = await fetch(
-        `${API_URL}/api/chat/send/${selectedModel}`,
+        `${CHAT_API_URL}/api/chat/send/${selectedModel}`,
         {
           method: "POST",
           headers: {
