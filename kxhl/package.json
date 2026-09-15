@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:pages": "wrangler pages dev --port 8788 -- npm run dev",
     "build": "tsc -b && vite build",
     "test": "node --experimental-strip-types --test src/chatHost.test.ts",
     "lint": "eslint .",
