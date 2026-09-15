@@ -1,1 +1,7 @@
+# Chat always lives on https://chat.kxhacklab.com/
+/chat  https://chat.kxhacklab.com/  301
+/chat/*  https://chat.kxhacklab.com/:splat  301
+/projects/chat  https://chat.kxhacklab.com/  301
+
+# SPA fallback for the marketing site and the chat subdomain
 /*    /index.html   200
