@@ -67,7 +67,7 @@ projects/makemore/api/
 │   └── archive/              # Archived logs
 └── ../gpt/
     ├── transformer_model_v3.pt  # Chat model
-    └── chat.txt                 # Vocabulary
+    └── vocab.json               # Character vocabulary
 ```
 
 ---

@@ -35,7 +35,7 @@ projects/makemore/api/
 ├── model.pt                         # Names model
 ├── drugs_model.pt                   # Drugs model
 ├── ../gpt/transformer_model_v3.pt   # GPT chat model
-└── ../gpt/chat.txt                  # Vocabulary file
+└── ../gpt/vocab.json                # Character vocabulary (not the chat export)
 ```
 
 ### Python Dependencies

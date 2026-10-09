@@ -3,3 +3,8 @@
 __pycache__/
 *.pyc
 *.log
+
+# Raw WhatsApp group export (member phone numbers and the group invite).
+# Do not commit a local copy.
+kxhl/public/chat-data/chat.txt
+projects/makemore/gpt/chat.txt
