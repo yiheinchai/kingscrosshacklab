@@ -223,7 +223,7 @@ GPT_NUM_HEADS = 16
 GPT_DROPOUT_RATE = 0.2
 GPT_NUM_BLOCKS = 4
 
-# GPT Chat vocabulary - will be loaded from chat.txt
+# Character inventory for the GPT chat checkpoint. Not the chat transcript.
 gpt_chat_data = None
 gpt_tokeniser = None
 gpt_detokeniser = None
@@ -483,16 +483,17 @@ def load_gpt_chat_model():
     if "gpt_chat" in models:
         return models["gpt_chat"]
 
-    # Load chat data for vocabulary
-    chat_path = os.path.join(os.path.dirname(__file__), "..", "gpt", "chat.txt")
-    if not os.path.exists(chat_path):
-        raise FileNotFoundError(f"Chat data file not found: {chat_path}")
+    # Vocabulary is a list of single characters, not the WhatsApp export.
+    vocab_path = os.path.join(os.path.dirname(__file__), "..", "gpt", "vocab.json")
+    if not os.path.exists(vocab_path):
+        raise FileNotFoundError(f"Chat vocabulary file not found: {vocab_path}")
 
-    with open(chat_path, "r") as f:
-        gpt_chat_data = f.read()
+    with open(vocab_path, "r", encoding="utf-8") as f:
+        chars = json.load(f)
+    if not isinstance(chars, list) or not chars:
+        raise ValueError(f"Expected a non-empty token list in {vocab_path}")
 
-    # Build vocabulary
-    chars = sorted(list(set(gpt_chat_data))) + ["<s>"]
+    gpt_chat_data = None
     gpt_vocab_size = len(chars)
     gpt_tokeniser = {c: i for i, c in enumerate(chars)}
     gpt_detokeniser = {i: c for i, c in enumerate(chars)}
@@ -525,7 +526,8 @@ def generate_gpt_chat(
     model = load_gpt_chat_model()
     device = next(model.parameters()).device
 
-    # Prepare context
+    # Prepare context. The checkpoint vocabulary has no separate <s> token.
+    pad = gpt_tokeniser.get("<s>", 0)
     if context_text:
         # Tokenize the context, handling unknown characters
         context_tokens = []
@@ -536,14 +538,12 @@ def generate_gpt_chat(
 
         # Pad or trim to context length
         if len(context_tokens) < GPT_CONTEXT_LENGTH:
-            padding = [gpt_tokeniser["<s>"]] * (
-                GPT_CONTEXT_LENGTH - len(context_tokens)
-            )
+            padding = [pad] * (GPT_CONTEXT_LENGTH - len(context_tokens))
             context_tokens = padding + context_tokens
         else:
             context_tokens = context_tokens[-GPT_CONTEXT_LENGTH:]
     else:
-        context_tokens = [gpt_tokeniser["<s>"]] * GPT_CONTEXT_LENGTH
+        context_tokens = [pad] * GPT_CONTEXT_LENGTH
 
     generated = ""
 

@@ -59,7 +59,7 @@ MISSING_MODELS=()
 [ ! -f "model.pt" ] && MISSING_MODELS+=("model.pt")
 [ ! -f "drugs_model.pt" ] && MISSING_MODELS+=("drugs_model.pt")
 [ ! -f "../gpt/transformer_model_v3.pt" ] && MISSING_MODELS+=("transformer_model_v3.pt")
-[ ! -f "../gpt/chat.txt" ] && MISSING_MODELS+=("chat.txt")
+[ ! -f "../gpt/vocab.json" ] && MISSING_MODELS+=("vocab.json")
 
 if [ ${#MISSING_MODELS[@]} -gt 0 ]; then
     echo "   ⚠️  Missing model files: ${MISSING_MODELS[*]}"

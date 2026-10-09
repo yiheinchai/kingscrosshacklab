@@ -130,66 +130,15 @@ export async function saveState(state: ChatState): Promise<void> {
   }
 }
 
-function skipSystemLine(sender: string, content: string): boolean {
-  const lower = content.toLowerCase();
-  if (sender.toLowerCase().startsWith("kings cross hack lab")) {
-    if (
-      lower.includes("encrypted") ||
-      lower.includes("created") ||
-      lower.includes("added")
-    ) {
-      return true;
-    }
-  }
-  return lower.includes("omitted") || content.length < 2;
-}
-
-async function loadNgramModel(origin: string): Promise<NgramModel> {
+function loadNgramModel(): NgramModel {
   if (ngramModel) return ngramModel;
-
-  const senders: string[] = [];
-  const starts: string[] = [];
-  const next: Record<string, string[]> = {};
-
-  try {
-    const response = await fetch(new URL("/chat-data/chat.txt", origin));
-    if (response.ok) {
-      const corpus = await response.text();
-      const lineRe =
-        /^\[?\d{1,2}\/\d{1,2}\/\d{2,4},?\s*\d{1,2}:\d{1,2}(?::\d{1,2})?\]?\s*([^:]+):\s*(.+)$/;
-      for (const rawLine of corpus.split("\n")) {
-        const line = rawLine.replace(/^\u200e/, "").trim();
-        const match = line.match(lineRe);
-        if (!match) continue;
-        const sender = match[1].trim().replace(/^~\s*/, "");
-        const content = match[2].trim();
-        if (skipSystemLine(sender, content)) continue;
-
-        senders.push(sender);
-        const words = content.split(/\s+/).filter(Boolean);
-        if (words.length === 0) continue;
-        starts.push(words[0]);
-        for (let i = 0; i < words.length - 1; i += 1) {
-          const key = words[i];
-          if (!next[key]) next[key] = [];
-          next[key].push(words[i + 1]);
-        }
-      }
-    }
-  } catch {
-    // Use a tiny fallback so the API still responds if the corpus is missing.
-  }
-
-  if (senders.length === 0) {
-    ngramModel = {
-      senders: ["KXHL"],
-      starts: ["yeah"],
-      next: { yeah: ["this", "lets"], this: ["tracks"], lets: ["build"] },
-    };
-    return ngramModel;
-  }
-
-  ngramModel = { senders, starts, next };
+  // The WhatsApp export is not shipped or served. This tiny model keeps
+  // /api/chat generation working without reading chat.txt.
+  ngramModel = {
+    senders: ["KXHL"],
+    starts: ["yeah"],
+    next: { yeah: ["this", "lets"], this: ["tracks"], lets: ["build"] },
+  };
   return ngramModel;
 }
 
@@ -197,10 +146,8 @@ function pick<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-export async function generateAiMessage(
-  origin: string,
-): Promise<ChatMessage | null> {
-  const model = await loadNgramModel(origin);
+export async function generateAiMessage(): Promise<ChatMessage | null> {
+  const model = loadNgramModel();
   const sender = pick(model.senders);
   const wordCount = 8 + Math.floor(Math.random() * 18);
   const words: string[] = [pick(model.starts)];

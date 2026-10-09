@@ -206,14 +206,9 @@ function HomePage() {
           </p>
 
           <div className="hero-cta">
-            <a
-              href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=hqrc"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary"
-            >
+            <Link to="/projects" className="btn-primary">
               Start Building
-            </a>
+            </Link>
             <a href="#philosophy" className="btn-secondary">
               Read the Manifesto
             </a>
@@ -466,18 +461,12 @@ function HomePage() {
           <h2>Ready to dig into your rabbit hole?</h2>
 
           <p className="join-description">
-            Join our WhatsApp community and start building every Wednesday at
-            Kings Cross, London.
+            We build together every Wednesday at Kings Cross, London.
           </p>
 
-          <a
-            href="https://chat.whatsapp.com/IXipZBiXJSULQqLpfwVhCl?mode=hqrc"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gradient join-button"
-          >
-            Join WhatsApp Community
-          </a>
+          <Link to="/projects" className="btn-gradient join-button">
+            See the projects
+          </Link>
         </div>
       </section>
     </>

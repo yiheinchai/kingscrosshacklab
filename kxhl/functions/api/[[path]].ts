@@ -12,7 +12,6 @@ import {
 } from "../lib/chat";
 
 async function maybeGenerate(
-  origin: string,
   state: ChatState,
   modelId: string,
 ): Promise<void> {
@@ -23,7 +22,7 @@ async function maybeGenerate(
 
   state.generating[modelId] = true;
   try {
-    const message = await generateAiMessage(origin);
+    const message = await generateAiMessage();
     if (message) {
       state.messages[modelId] = [...(state.messages[modelId] || []), message];
       state.lastGeneratedAt[modelId] = Date.now();
@@ -71,7 +70,7 @@ export const onRequest = async (context: PagesContext) => {
 
   if (parts[1] === "messages" && request.method === "GET") {
     if (shouldGenerate(state, modelId) || state.messages[modelId].length === 0) {
-      context.waitUntil(maybeGenerate(origin, state, modelId));
+      context.waitUntil(maybeGenerate(state, modelId));
     }
     const messages = state.messages[modelId];
     return jsonResponse({
@@ -105,7 +104,7 @@ export const onRequest = async (context: PagesContext) => {
     const message = createUserMessage(body.sender || "Anonymous", content);
     state.messages[modelId] = [...state.messages[modelId], message];
     await saveState(state);
-    context.waitUntil(maybeGenerate(origin, state, modelId));
+    context.waitUntil(maybeGenerate(state, modelId));
 
     return jsonResponse({ success: true, message });
   }
