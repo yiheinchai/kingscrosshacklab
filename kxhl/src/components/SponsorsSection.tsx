@@ -32,7 +32,6 @@ export default function SponsorsSection() {
                     style={{ width: sponsor.logoWidth }}
                   />
                 </span>
-                <span className="sponsor-support">{sponsor.support}</span>
               </a>
             </li>
           ))}
