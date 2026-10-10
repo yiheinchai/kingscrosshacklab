@@ -1,4 +1,5 @@
 import elevenLabsLogo from "../assets/sponsors/elevenlabs-logo-white.svg";
+import lovableLogo from "../assets/sponsors/lovable-logo-white.svg";
 import renderLogo from "../assets/sponsors/render-logo-white.svg";
 
 /**
@@ -38,5 +39,14 @@ export const sponsors: Sponsor[] = [
     width: 694,
     height: 90,
     logoWidth: 220,
+  },
+  {
+    id: "lovable",
+    name: "Lovable",
+    url: "https://lovable.dev",
+    logo: lovableLogo,
+    width: 950,
+    height: 173,
+    logoWidth: 210,
   },
 ];

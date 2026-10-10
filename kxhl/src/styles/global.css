@@ -1795,13 +1795,13 @@ footer .container {
   list-style: none;
   margin: 0 auto;
   padding: 0;
-  max-width: 860px;
+  max-width: 1080px;
 }
 
 .sponsors-list > li {
-  flex: 1 1 18rem;
-  max-width: 24rem;
-  min-width: min(100%, 18rem);
+  flex: 1 1 16rem;
+  max-width: 22rem;
+  min-width: min(100%, 16rem);
 }
 
 .sponsor-card {
@@ -1846,6 +1846,11 @@ footer .container {
 /* ElevenLabs clearance is one wordmark-height on every side. */
 .sponsor-logo-frame--elevenlabs {
   padding: 1.75rem;
+}
+
+/* Lovable's lockup is drawn to the edge of the file, so keep a little air. */
+.sponsor-logo-frame--lovable {
+  padding: 0.85rem 0.35rem;
 }
 
 .sponsor-logo {
