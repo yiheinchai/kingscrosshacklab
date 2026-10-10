@@ -185,6 +185,8 @@ function RootLayout() {
   );
 }
 
+const FRIDAY_23_OCT_RSVP_URL = "https://luma.com/i513bp9m";
+
 // Home Page Component
 function HomePage() {
   return (
@@ -211,6 +213,14 @@ function HomePage() {
           </p>
 
           <div className="hero-cta">
+            <a
+              href={FRIDAY_23_OCT_RSVP_URL}
+              className="btn-gradient"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              RSVP · Fri 23 Oct
+            </a>
             <Link to="/projects" className="btn-primary">
               Start Building
             </Link>
@@ -470,9 +480,31 @@ function HomePage() {
           <p className="join-description">
             We meet weekly, Thursdays or Fridays, at UCL in King's Cross.
             Next session: Friday 16 October, 12–3pm, UCL Student Centre, Room
-            2.01 — demos plus socials. Then Friday 23 October and Friday 30
-            October, 12–3pm, UCL Student Centre.
+            2.01 — demos plus socials.
           </p>
+
+          <ul className="join-sessions">
+            <li className="join-session">
+              <div className="join-session-copy">
+                <strong>Friday 23 October</strong>
+                <span>12–3pm · UCL Student Centre</span>
+              </div>
+              <a
+                href={FRIDAY_23_OCT_RSVP_URL}
+                className="btn-gradient join-rsvp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Register
+              </a>
+            </li>
+            <li className="join-session">
+              <div className="join-session-copy">
+                <strong>Friday 30 October</strong>
+                <span>12–3pm · UCL Student Centre</span>
+              </div>
+            </li>
+          </ul>
 
           <Link to="/projects" className="btn-gradient join-button">
             See the projects

@@ -1744,10 +1744,51 @@ footer .container {
 .join-description {
   font-size: 1.125rem;
   color: var(--text-secondary);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.75rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.join-sessions {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin: 0 auto 2.5rem;
+  padding: 0;
+  text-align: left;
+}
+
+.join-session {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: rgba(30, 27, 24, 0.4);
+  border: 1px solid rgba(242, 197, 176, 0.08);
+  border-radius: 1rem;
+}
+
+.join-session-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.join-session-copy strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.join-session-copy span {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 .join-button {
@@ -1756,6 +1797,7 @@ footer .container {
 }
 
 .btn-gradient {
+  display: inline-block;
   padding: 1rem 2.5rem;
   background: linear-gradient(
     to right,
@@ -1768,12 +1810,19 @@ footer .container {
   border: none;
   cursor: pointer;
   font-size: 1.125rem;
+  text-decoration: none;
   transition: all 0.3s;
 }
 
 .btn-gradient:hover {
   opacity: 0.9;
   transform: translateY(-2px);
+}
+
+.btn-gradient.join-rsvp {
+  flex-shrink: 0;
+  padding: 0.75rem 1.35rem;
+  white-space: nowrap;
 }
 
 /* Sponsors */
@@ -1902,7 +1951,19 @@ footer .container {
   }
 
   .btn-primary,
-  .btn-secondary {
+  .btn-secondary,
+  .hero-cta .btn-gradient {
+    width: 100%;
+    text-align: center;
+  }
+
+  .join-session {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .join-rsvp {
     width: 100%;
     text-align: center;
   }
