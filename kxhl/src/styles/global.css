@@ -1773,6 +1773,7 @@ footer .container {
   padding: 4.5rem 0 5rem;
   background: var(--bg-primary);
   text-align: center;
+  scroll-margin-top: 6rem;
 }
 
 .sponsors-heading {
