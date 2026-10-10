@@ -176,8 +176,8 @@ function RootLayout() {
       <footer>
         <div className="container">
           <p>
-            © 2025 Kings Cross Hack Lab — Where ideas become real, every
-            Wednesday
+            © 2025 Kings Cross Hack Lab — Where ideas become real, weekly at
+            UCL in King's Cross
           </p>
         </div>
       </footer>
@@ -194,8 +194,12 @@ function HomePage() {
         <div className="container">
           <div className="hero-badge">
             <span className="pulse-dot"></span>
-            Kings Cross, London
+            Fri 16 Oct · 12–3pm
           </div>
+          <p className="hero-session">
+            UCL Student Centre, Room 2.01 · weekly, Thursdays or Fridays, King's
+            Cross
+          </p>
 
           <h1 className="hero-title">
             Optimize for <span className="gradient-text">Fun.</span>
@@ -464,7 +468,10 @@ function HomePage() {
           <h2>Ready to dig into your rabbit hole?</h2>
 
           <p className="join-description">
-            We build together every Wednesday at Kings Cross, London.
+            We meet weekly, Thursdays or Fridays, at UCL in King's Cross.
+            Next session: Friday 16 October, 12–3pm, UCL Student Centre, Room
+            2.01 — demos plus socials. Then Friday 23 October and Friday 30
+            October, 12–3pm, UCL Student Centre.
           </p>
 
           <Link to="/projects" className="btn-gradient join-button">
