@@ -9,6 +9,7 @@ import {
 import React, { useState, useEffect, useRef } from "react";
 import MakemorePage from "./components/MakemorePage";
 import ChatPage from "./components/ChatPage";
+import SponsorsSection from "./components/SponsorsSection";
 import logoImage from "./assets/logo.jpg";
 import {
   CANONICAL_CHAT_ORIGIN,
@@ -454,6 +455,8 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      <SponsorsSection />
 
       {/* Join Section */}
       <section id="join" className="join-section">
