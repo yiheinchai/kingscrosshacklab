@@ -1372,7 +1372,15 @@ footer .container {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  margin-bottom: 3rem;
+  margin-bottom: 0.85rem;
+}
+
+.hero-session {
+  max-width: 36rem;
+  margin: 0 auto 3rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .pulse-dot {
