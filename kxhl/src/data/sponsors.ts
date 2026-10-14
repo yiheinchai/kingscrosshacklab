@@ -1,4 +1,5 @@
 import elevenLabsLogo from "../assets/sponsors/elevenlabs-logo-white.svg";
+import langfuseLogo from "../assets/sponsors/langfuse-logo-white.svg";
 import lovableLogo from "../assets/sponsors/lovable-logo-white.svg";
 import renderLogo from "../assets/sponsors/render-logo-white.svg";
 
@@ -48,5 +49,14 @@ export const sponsors: Sponsor[] = [
     width: 950,
     height: 173,
     logoWidth: 210,
+  },
+  {
+    id: "langfuse",
+    name: "Langfuse",
+    url: "https://langfuse.com",
+    logo: langfuseLogo,
+    width: 2233,
+    height: 527,
+    logoWidth: 200,
   },
 ];
