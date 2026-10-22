@@ -1910,6 +1910,11 @@ footer .container {
   padding: 0.85rem 0.35rem;
 }
 
+/* Modal's lockup is drawn to the edge of the file, so keep a little air. */
+.sponsor-logo-frame--modal {
+  padding: 0.85rem 0.35rem;
+}
+
 .sponsor-logo {
   display: block;
   height: auto;
