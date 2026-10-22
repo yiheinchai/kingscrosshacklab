@@ -1,6 +1,7 @@
 import elevenLabsLogo from "../assets/sponsors/elevenlabs-logo-white.svg";
 import langfuseLogo from "../assets/sponsors/langfuse-logo-white.svg";
 import lovableLogo from "../assets/sponsors/lovable-logo-white.svg";
+import modalLogo from "../assets/sponsors/modal-logo-white.svg";
 import renderLogo from "../assets/sponsors/render-logo-white.svg";
 
 /**
@@ -57,6 +58,15 @@ export const sponsors: Sponsor[] = [
     logo: langfuseLogo,
     width: 2233,
     height: 527,
+    logoWidth: 200,
+  },
+  {
+    id: "modal",
+    name: "Modal",
+    url: "https://modal.com",
+    logo: modalLogo,
+    width: 1681,
+    height: 317,
     logoWidth: 200,
   },
 ];
